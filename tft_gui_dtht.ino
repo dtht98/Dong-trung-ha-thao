@@ -74,6 +74,8 @@
 #define Backcolor24 {8, 44, 54}
 #define topBarBackground 0x1a6b
 
+unsigned long lastPing = 0;
+
 MCUFRIEND_kbv tft;
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);  //300 Ohm
 int wscr = 480;
@@ -83,7 +85,7 @@ bool touched, modeChangedRecently = false;
 uint8_t mode = AUTO;
 
 float temperature = 19, humidity = 80, temperatureSP = 18, humiditySP = 90;
-bool lightOn;
+bool light, prev_light;
 
 class Screen {
   public:
@@ -153,10 +155,11 @@ class Screen {
 };
 Screen screen;
 
-#define N_COMMAND 2
-class Command {
+#define N_COMMAND 6
+class {
   public:
-    const String cmd[N_COMMAND] = {"list", "status"};
+    uint8_t port = 0;
+    const String cmd[N_COMMAND] = {"list", "status", "time", "strength", "connected", "setpoint"};
     const uint8_t ncmd = N_COMMAND;
     bool done = false;
     String buffer = "";
@@ -191,8 +194,48 @@ class Command {
       }
       return -1;
     }
-};
-Command cmd;
+} cmd;
+
+#define N_COMMAND2 1
+class {
+  public:
+    uint8_t port = 0;
+    const String cmd[N_COMMAND2] = {"info"};
+    const uint8_t ncmd = N_COMMAND2;
+    bool done = false;
+    String buffer = "";
+    String param;
+
+    int read() {
+      while (Serial2.available() > 0) {
+        char b = Serial2.read();
+        if (b == '\n') return -1;
+        if (b == ';') {
+          String temp = buffer;
+          buffer = "";
+          int dot = temp.indexOf('.');
+          if (dot != -1) {
+            String tempcmd = temp.substring(0, dot);
+            for (int i = 0; i < ncmd; i++) {
+              if (tempcmd == cmd[i]) {
+                if (dot + 1 < temp.length()) param = temp.substring(dot + 1);
+                return i;
+              }
+            }
+          } else {
+            for (int i = 0; i < ncmd; i++) {
+              if (temp == cmd[i]) {
+                return i;
+              }
+            }
+          }
+        } else {
+          buffer += String(b);
+        }
+      }
+      return -1;
+    }
+} cmd2;
 
 //------------------------------------------------------For showing bitmap image------------------------------------------------------
 File file;
@@ -442,19 +485,43 @@ class GroupBox {
 class Wifi {
   public:
     uint8_t spacing = 2, hmax = 20, w = 3;
-    uint8_t bar = 4;
+    uint8_t bar = 0;
     bool stt = false, receivedWifiList, printedWifiList;
     String ssid[10];
     signed int rssi[10];
     int n = 0;
     String password, name;
+    signed int strength;
+    int x = 450, y = 27;
 
-    void drawSignal(int x, int y) {
-      uint16_t color[] = {RED, YELLOW, GREEN, GREEN};
-      for (char i = 0; i < 4; i++) {
-        int h = (i + 1) * hmax / 4;
-        tft.fillRect(x + i * (w + spacing), y - h, w, h, i < bar ? color[bar - 1] : topBarBackground);
+    void drawSignal(bool eraseBackground) {
+      if (eraseBackground)
+        tft.fillRect(x - 7, y - hmax, 35, hmax, topBarBackground);
+      if (stt) {
+        uint16_t color[] = {RED, YELLOW, GREEN, GREEN};
+        for (char i = 0; i < 4; i++) {
+          int h = (i + 1) * hmax / 4;
+          if (i < bar) tft.fillRect(x + i * (w + spacing), y - h, w, h, color[bar - 1]);
+          else {
+            tft.fillRect(x + i * (w + spacing), y - h, w, h, topBarBackground);
+            tft.drawRect(x + i * (w + spacing), y - h, w, h, Backcolor);
+          }
+        }
+      } else {
+        for (char i = 0; i < 4; i++) {
+          int h = (i + 1) * hmax / 4;
+          tft.drawRect(x + i * (w + spacing), y - h, w, h, RED);
+        }
+        uint16_t diagon = RED;
+        tft.drawLine(x - 5, y - hmax, x + 22, y - 2, diagon);
+        tft.drawLine(x - 5, y - hmax + 1, x + 22, y - 1, diagon);
+        tft.drawLine(x - 5, y - hmax + 2, x + 22, y, diagon);
       }
+    }
+
+    void setStrength(signed int str) {
+      strength = str;
+      bar = map(str, -80, -50, 1, 4);
     }
 };
 
@@ -486,7 +553,7 @@ class Switch {
 
 class Clock {
   public:
-    uint8_t hour, minute, day, month;
+    uint8_t hour, minute, day, month, dayOfWeek = 0;
     uint16_t year;
 
     void set(uint8_t _hour, uint8_t _minute, uint8_t _day, uint8_t _month, uint16_t _year) {
@@ -501,7 +568,7 @@ class Clock {
       return form(hour) + String(":") + form(minute);
     }
     String getDateString() {
-      return form(day) + String("/") + form(month) + String("/") + String(year);
+      return (dayOfWeek == 0 ? String("CN") : String('T') + String(dayOfWeek + 1)) + String(", ") + form(day) + String("/") + form(month) + String("/") + String(year);
     }
 
     String form(int x) {
@@ -511,6 +578,8 @@ class Clock {
         return String(x);
       }
     }
+
+
 };
 Clock clk;
 
@@ -653,7 +722,6 @@ class Keypad {
       }
 
       button[11].back = 0x7000;
-      button[11].xText = (wBtn - spacing) / 2 - 16;
       int i = 0;
       for (int r = 0; r < 4; r ++) {
         for (int c = 0; c < 3; c ++) {
@@ -661,10 +729,8 @@ class Keypad {
           button[i].y = y + r * hBtn + spacing / 2;
           button[i].w = wBtn - spacing;
           button[i].h = hBtn - spacing;
-          button[i].yText = button[i].h / 2 + 7;
-          if (i != 11) {
-            button[i].xText = button[i].w / 2 - 5;
-          }
+          button[i].yText = button[i].h / 2 - 7;
+          button[i].xText = button[i].w / 2 - 6;
           i++;
         }
       }
@@ -876,8 +942,11 @@ class Menu {
         Color border = {156, 198, 255}, selectedColor{10, 82, 102};
         bool defaultFont = false;
 
-        void draw() {
+        void draw(bool eraseBackground) {
           y = ystart + id * h;
+          if (eraseBackground) {
+            tft.fillRect(0, y + 1, wscr, h - 2, Backcolor);
+          }
           GradLineH(0, y, wscr, 1, border, Backcolor24).draw();
           if (defaultFont) {
             text(lb, 60, y + h / 3, 2, WHITE);
@@ -930,7 +999,7 @@ class Menu {
     }
     void draw() {
       for (int i = 0; i < n; i++) {
-        list[i].draw();
+        list[i].draw(false);
       }
     }
 };
@@ -1032,6 +1101,20 @@ bool hasHeader(uint8_t scr) {
   return (scr == SETUP || scr == ENVIR || scr == HT_INPUT || scr == WIFI_LIST);
 }
 
+void drawTime(bool drawDay) {
+  Serial.println("Time event");
+  tft.fillRect(9, 5, 64, 28, topBarBackground);
+  text(clk.getTimeString(), 10, 8, 2); // top bar time
+  if (screen.current() == MAIN) {
+    tft.fillRect(320, 53, 150, 50, Backcolor);
+    text(clk.getTimeString(), 330, 90, 1, WHITE, &Roboto_Light24pt7b);
+    if (drawDay) {
+      tft.fillRect(320, 106, 150, 20, Backcolor);
+      text(clk.getDateString(), 330, 120, 1, WHITE, &Roboto_Black8pt7b);
+    }
+  }
+}
+
 void drawTopBar() {
   gr.x = 0;  gr.len = wscr;
   gr.n = 3;
@@ -1041,11 +1124,11 @@ void drawTopBar() {
   gr.color[2] = {8, 44, 54};
   tft.fillRect(0, 0, wscr, gr.p[0], tft.color565(24, 78, 93));
   gr.draw();
-  text(clk.getTimeString(), 10, 8, 2);
-  wifi.drawSignal(440, 27);
+  drawTime(true);
+  wifi.drawSignal(false);
 }
 
-void screenMain() {
+void screenMain() {     //draw main screen
   GroupBox thongso("Th\u00a6ng s\u00a8:", 10, 55, 280, 310), groupBox2("", 295, 150, 470, 310);
   Btn gotoSetupBtn("T\u00aei b\u0082ng \u001fi\u0097u khi\u0099n");
 
@@ -1053,8 +1136,7 @@ void screenMain() {
   tft.fillRect(0, gr.p[2], wscr, hscr - gr.p[2], Backcolor);
   //clock
   int xt = 300, yt = 90;
-  text(clk.getTimeString(), xt + 30, yt, 1, WHITE, &Roboto_Light24pt7b);
-  text(clk.getDateString(), xt + 40, yt + 30, 1, WHITE, &Roboto_Black8pt7b);
+  drawTime(true);
   tft.drawFastVLine(xt - 5, yt - 40, 85, WHITE);
   tft.drawFastHLine(xt - 5, yt + 45, 170, WHITE);
   //GradLineH(295, 125, 180, 1, {255, 255, 255}, {8, 44, 54}).draw();
@@ -1062,7 +1144,7 @@ void screenMain() {
   xt = thongso.x + 70, yt = thongso.y + 60;
   tft.fillCircle(xt - 31, yt - 15, 20, WHITE);
   lIcon.draw(xt - 45, yt - 29);
-  text(String("\u001cnh s\u0081ng: ") + String(lightOn ? "B\u0090t" : "T\u0087t"), xt, yt, 1, WHITE, &test); //LIGHT
+  text(String("\u001cnh s\u0081ng: ") + String(light ? "B\u0090t" : "T\u0087t"), xt, yt, 1, WHITE, &test); //LIGHT
   yt += 50;
   tft.fillCircle(xt - 31, yt - 15, 20, WHITE);
   hIcon.draw(xt - 41, yt - 30);
@@ -1136,11 +1218,10 @@ void screenSetup() {
 }
 
 void screenEnvirScreen() {
-  Menu menuEnvir(3);
+  Menu menuEnvir(2);
 
-  menuEnvir.list[0].lb = String("\u001e\u0091n chi\u0098u s\u0081ng: ") + (lightOn ? String("B\u0090t") : String("T\u0087t"));
-  menuEnvir.list[1].lb = F("Nhi\u009bt \u001f\u00ab");
-  menuEnvir.list[2].lb = F("\u001e\u00ab \u008em");
+  menuEnvir.list[0].lb = String("\u001e\u0091n chi\u0098u s\u0081ng: ") + (light ? String("B\u0090t") : String("T\u0087t"));
+  menuEnvir.list[1].lb = "Nhi\u009bt \u001f\u00ab, \u001e\u00ab \u008em";
 
   clr();
   header.lb = "M\u00a6i tr\u00b8\u00adng";
@@ -1150,6 +1231,14 @@ void screenEnvirScreen() {
   while (true) {
     checkTouch();
     header.onclicked();
+    menuEnvir.list[0].onclicked([] {
+      light = !light;
+    });
+    if (prev_light != light) {
+      prev_light = light;
+      menuEnvir.list[0].lb = String("\u001e\u0091n chi\u0098u s\u0081ng: ") + (light ? String("B\u0090t") : String("T\u0087t"));
+      menuEnvir.list[0].draw(true);
+    }
     menuEnvir.list[1].onclicked([] {screen.add(HT_INPUT);});
     if (screen.hasJustChanged()) break;
   }
@@ -1168,9 +1257,11 @@ void screenHTInputs() {
   text("Nhi\u009bt \u001f\u00ab:", 10, yt, 1, WHITE, &ss13pt);
   tInput.draw(130, yt - 25);
   tInput.select();
+  text("\u00b0\u0043", 235, yt, 1, WHITE, &ss13pt);
   yt += 50;
-  text("Do am:", 10, yt, 1, WHITE, &ss13pt);
+  text("\u001e\u00ab \u008em:", 10, yt, 1, WHITE, &ss13pt);
   hInput.draw(130, yt - 25);
+  text("\u0025", 235, yt, 1, WHITE, &ss13pt);
   inputOk.w = 60;
   inputOk.xText = 15;
   inputOk.draw(160, yt + 40);
@@ -1272,7 +1363,7 @@ void screenWifiPassword() {
 
 void screenWifiStatus() {
   Btn disconnect("Ng\u0087t k\u0098t n\u00a8i");
-  
+
   clr();
   header.lb = "Wifi";
   header.draw();
@@ -1284,7 +1375,7 @@ void screenWifiStatus() {
     text("\u001e\u0083 k\u0098t n\u00a8i:", 50, 140, 1, WHITE, &ss13pt);
     text(wifi.name, 70, 170, 1, WHITE, &ss13pt);
     flag = true;
-    disconnect.w = 150;    
+    disconnect.w = 150;
     disconnect.draw(100, 270);
   }
 
@@ -1293,7 +1384,7 @@ void screenWifiStatus() {
   while (true) {
     checkTouch();
     header.onclicked();
-    
+
     if (!flag) {
       if (failed) {
         msg.draw("Failed.", 200, 200);    // failed to connect
@@ -1325,7 +1416,7 @@ void setup(void) {
   pinMode(53, OUTPUT);
   Serial.begin(9600);
   Serial3.begin(9600);
-
+  Serial2.begin(9600);
   Serial3.print("flush;");
 
   uint16_t identifier = tft.readID();
@@ -1350,8 +1441,9 @@ void setup(void) {
 
   pwInput.w = 250;
 
-  clk.set(11, 28, 1, 1, 2011);
+  clk.set(0, 0, 1, 1, 1111);
   tft.setRotation(1);
+  serial();
   drawTopBar();
   screen.add(MAIN);
   screen.hasJustChanged();
@@ -1400,53 +1492,149 @@ void checkTouch() {
     tx = map(p.y, TS_MINY, TS_MAXY, tft.width(), 0);
   }
   serial();
+  if (wifi.stt) {
+    if (millis() - lastPing > 2000) {
+      wifi.stt = false;
+      wifi.drawSignal(true);
+      if (screen.current() == WIFI_STATUS) {
+        screen.pop();
+      }
+    }
+  }
 }
 
 void serial() {
   int icmd = cmd.read();
-  if (icmd == 1) {
-    String s = cmd.param;
-    
-    if (s == "1") {
-      wifi.stt = true;
-      Serial.println("connected");
-    } else {
-      wifi.stt = false;
-      Serial.println("disconnected");
-    }
-  }
-
   switch (icmd) {
     case 0:  // receive wifi list
-      Serial.println("Receive list of wifi:");
-      String s = cmd.param;
-      wifi.n = 0;
-      if (s == "") break;
-      for (int i = 0; i < 10; i++) {
-        int sp = s.indexOf("\\\\");
-        String s2;
-        if (sp != -1) {
-          s2 = s.substring(0, sp);
-        } else {
-          s2 = s;
+      {
+        Serial.println("Receive list of wifi:");
+        String s = cmd.param;
+        wifi.n = 0;
+        if (s == "") break;
+        for (int i = 0; i < 10; i++) {
+          int sp = s.indexOf("\\\\");
+          String s2;
+          if (sp != -1) {
+            s2 = s.substring(0, sp);
+          } else {
+            s2 = s;
+          }
+          int sp2 = s.indexOf("::");
+          wifi.ssid[i] = s2.substring(0, sp2);
+          wifi.rssi[i] = s2.substring(sp2 + 2, s2.length()).toInt();
+          wifi.n = wifi.n + 1;
+          if (sp != -1) s = s.substring(sp + 2, s.length());
+          else break;
         }
-        int sp2 = s.indexOf("::");
-        wifi.ssid[i] = s2.substring(0, sp2);
-        wifi.rssi[i] = s2.substring(sp2 + 2, s2.length()).toInt();
-        wifi.n = wifi.n + 1;
-        if (sp != -1) s = s.substring(sp + 2, s.length());
-        else break;
+
+        wifi.receivedWifiList = true;
+
+        for (int i = 0; i < wifi.n; i++) {
+          Serial.print(wifi.ssid[i]);
+          Serial.println(wifi.rssi[i]);
+        }
       }
-
-      wifi.receivedWifiList = true;
-
-      for (int i = 0; i < wifi.n; i++) {
-        Serial.print(wifi.ssid[i]);
-        Serial.println(wifi.rssi[i]);
-      }
-
       break;
     case 1:
+      {
+        String s = cmd.param;
+
+        if (s == "1") {
+          wifi.stt = true;
+          Serial.println("connected");
+          lastPing = millis();
+        } else {
+          wifi.stt = false;
+          Serial.println("disconnected");
+        }
+        wifi.drawSignal(true);
+      }
+      break;
+    case 2:  // time.<h>:<m>,<w>,<d>/<m>/<y>
+      {
+        String s = cmd.param;
+
+        int sp1 = s.indexOf(':');
+        uint8_t m = s.substring(0, sp1).toInt();
+        int sp2 = s.indexOf(',', sp1 + 1);
+        clk.hour = s.substring(sp1 + 1, sp2).toInt();
+        int sp3 = s.indexOf(',', sp2 + 1);
+        clk.dayOfWeek = s.substring(sp2 + 1, sp3).toInt();
+        int sp4 = s.indexOf('/', sp3 + 1);
+        uint8_t d = s.substring(sp3 + 1, sp4).toInt();
+        int sp5 = s.indexOf('/', sp4 + 1);
+        clk.month = s.substring(sp4 + 1, sp5).toInt();
+        clk.year = s.substring(sp5 + 1, s.length()).toInt();
+        if (clk.minute != m) {
+          clk.minute = m;
+          bool drawDay = (clk.day != d);
+          if (drawDay) clk.day = d;
+          drawTime(drawDay);
+        }
+      }
+      break;
+    case 3:
+      {
+        String s = cmd.param;
+        int str = s.toInt();
+        lastPing = millis();
+        if (!wifi.stt) {
+          Serial3.print("get.wifi;");
+        } else {
+          wifi.setStrength(str);
+          wifi.drawSignal(false);
+        }
+      }
+      break;
+    case 4: //connected
+      {
+        String s = cmd.param;
+        int sp = s.indexOf("::");
+
+        wifi.stt = true;
+        lastPing = millis();
+        wifi.name = s.substring(0, sp);
+        wifi.password = s.substring(sp + 2, s.length());
+        wifi.drawSignal(true);
+      }
+      break;
+    case 5:
+      {
+        String s = cmd.param;
+        int sp = s.indexOf(':');
+        String pt = s.substring(0, sp);
+        String svalue = s.substring(sp+1, s.length());
+        float value = svalue.toFloat();
+        if (pt == "t") {
+          temperatureSP = value;
+        } else if (pt == "h") {
+          humiditySP = value;
+        } else {
+          light = value == 0? false : true;
+        }
+        Serial2.print(String("setpoint.") + pt + ":" + svalue + ";");
+      }
+      break;
+  }
+
+  switch (cmd2.read()) {
+    case 0:  // receive wifi list
+      {
+        String s = cmd2.param;
+        int comma1 = s.indexOf(',');
+        temperature = s.substring(0, comma1).toFloat();
+        int comma2 = s.indexOf(',', comma1 + 1);
+        humidity = s.substring(comma1 + 1, comma2).toFloat();
+        char as = s.charAt(s.length() - 1);
+        if (as == '0') {
+          light = false;
+        } else {
+          light = true;
+        }
+        Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + String(as) + ';');
+      }
+
       break;
   }
 }

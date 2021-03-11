@@ -190,13 +190,12 @@ void loop() {
   //  kiemTraSuCo();
   timer.tick();
   nutNhan();
-  AnhSang();
   nhietDo_doAm();
   hienThi();
   SS_water ();
   //  rtct();
   // myRTC.updateTime();
-
+  serial();
 }
 
 void nutNhan() {
@@ -294,22 +293,6 @@ void nutNhan() {
   if (ok) lcd.clear();
 }
 
-void AnhSang() {
-  if (clk.hour < 06 || clk.hour > 18) sang = 0;
-  else sang = 1;
-
-  if (sang && tMenu.index == 1) {
-    //int AD = K_D * anhSang_dat;
-    on(chieuSang);
-    //anhSang = anhSang_dat;
-  } else {
-    off(chieuSang);
-    //anhSang = 0;
-  }
-
-
-}
-
 
 
 void nhietDo_doAm() {
@@ -333,7 +316,7 @@ void nhietDo_doAm() {
 //}
 
 void suCoHetNuoc() {
-
+  Serial2.print("alert.out of water;");
 }
 
 void hienThi() {
@@ -532,9 +515,27 @@ void SS_water () {
   }
 }
 bool SendData(void*) { //  <info>.<t,h,as>;
-  Serial1.print(String("info.") + String(nhietDo) + String(",") + String(doAm) + String(",") + sang ? 1 : 0 + String(";"));
+  Serial2.print(String("info.") + String(nhietDo) + String(",") + String(doAm) + String(",") + sang ? 1 : 0 + String(";"));
   return true;
 }
-void receiveData() {
 
+void serial() {                //  truyen thong
+  switch (cmd.read()) {
+    case 0:
+      {
+        String s = cmd.param;
+        int sp = s.indexOf(':');
+        String pt = s.substring(0, sp);
+        String svalue = s.substring(sp + 1, s.length());
+        float value = svalue.toFloat();
+        if (pt == "t") {
+          nhietDo_dat = value;
+        } else if (pt == "h") {
+          doAm_dat = value;
+        } else {
+          sang = value == 0 ? false : true;
+        }
+      }
+      break;
+  }
 }

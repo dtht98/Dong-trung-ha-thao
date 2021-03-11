@@ -26,7 +26,7 @@
 #define coiBaoNuoc 5
 #define volumePin A0
 #define sensor_Water A1
-//#define hetNuoc 
+//#define hetNuoc
 
 #define NORMAL 0
 #define MAIN_MENU 1
@@ -49,9 +49,9 @@
   const float doAm_default[] = {77.5, 77.5, 82.5};
 */
 //virtuabotixRTC myRTC(2, 3, 4);
-float anhSang, nhietDo, doAm, nhietDo_dat(19), doAm_dat(77.5), anhSang_dat(1000);;
+float nhietDo, doAm, nhietDo_dat(19), doAm_dat(77.5);
 
-String mystring,mystring2,mystring3, tam, tam2, tam3, a, c, e, q, w,k,u;
+String mystring, mystring2, mystring3, tam, tam2, tam3, a, c, e, q, w, k, u;
 char x;
 
 int mode(NORMAL);
@@ -61,7 +61,78 @@ boolean nhanGiu;
 boolean inc, dec;
 uint16_t giay;
 
-LiquidCrystal lcd(23, 25, 27, 29, 31, 33);
+#define N_COMMAND 3
+class Command {
+  public:
+    const String cmd[N_COMMAND] = {"setpoint"};
+    const uint8_t ncmd = N_COMMAND;
+    bool done = false;
+    String buffer = "";
+    String param;
+
+    int read() {
+      while (Serial.available() > 0) {
+        char b = Serial.read();
+        if (b == '\n') return -1;
+        if (b == ';') {
+          String temp = buffer;
+          buffer = "";
+          int dot = temp.indexOf('.');
+          if (dot != -1) {
+            String tempcmd = temp.substring(0, dot);
+            for (int i = 0; i < ncmd; i++) {
+              if (tempcmd == cmd[i]) {
+                if (dot + 1 < temp.length()) param = temp.substring(dot + 1);
+                return i;
+              }
+            }
+          } else {
+            for (int i = 0; i < ncmd; i++) {
+              if (temp == cmd[i]) {
+                return i;
+              }
+            }
+          }
+        } else {
+          buffer += String(b);
+        }
+      }
+      return -1;
+    }
+};
+Command cmd;
+
+class Clock {
+  public:
+    uint8_t hour, minute, day, month;
+    uint16_t year;
+
+    void set(uint8_t _hour, uint8_t _minute, uint8_t _day, uint8_t _month, uint16_t _year) {
+      hour = _hour;
+      minute = _minute;
+      day = _day;
+      month = _month;
+      year = _year;
+    }
+
+    String getTimeString() {
+      return form(hour) + String(":") + form(minute);
+    }
+    String getDateString() {
+      return form(day) + String("/") + form(month) + String("/") + String(year);
+    }
+
+    String form(int x) {
+      if (x < 10) {
+        return String("0") + String(x);
+      } else {
+        return String(x);
+      }
+    }
+};
+Clock clk;
+
+
 DHT dht(DHTPIN, DHTTYPE);
 
 ToggleButton nut_ok(48), nut_len(50), nut_xuong(52);
@@ -84,10 +155,10 @@ void setup() {
   pinMode(lamLanh, OUTPUT);
   pinMode(taoSuong, OUTPUT);
   pinMode(coiBaoNuoc, OUTPUT);
-  pinMode(chieuSang, OUTPUT); 
+  pinMode(chieuSang, OUTPUT);
 
   off(lamLanh);
-  off(taoSuong);                                                                                                                      
+  off(taoSuong);
   /*
     nut_anhSang.begin();
     nut_nhietDo.begin();
@@ -109,23 +180,23 @@ void setup() {
   tMenu.len = 2;
   readFromEEPROM();
 
-// myRTC.setDS1302Time(25, 07, 13, 6, 27, 1, 2021); // sec/min/h/weekdays_dd/mm/yyyy
-// nap cuong trinh xong tha'o Module ra => xoa dong lenh myRTC.set nạp lại chương trình
+  timer.every(1000, SendData);
+
+  // myRTC.setDS1302Time(25, 07, 13, 6, 27, 1, 2021); // sec/min/h/weekdays_dd/mm/yyyy
+  // nap cuong trinh xong tha'o Module ra => xoa dong lenh myRTC.set nạp lại chương trình
 }
 
 void loop() {
-    //  kiemTraSuCo();
+  //  kiemTraSuCo();
   timer.tick();
   nutNhan();
   AnhSang();
   nhietDo_doAm();
   hienThi();
   SS_water ();
-  SendData();
-  receiveData();
-//  rtct();
-// myRTC.updateTime();
-  
+  //  rtct();
+  // myRTC.updateTime();
+
 }
 
 void nutNhan() {
@@ -224,9 +295,9 @@ void nutNhan() {
 }
 
 void AnhSang() {
- /* if(myRTC.hours < 06 || myRTC.hours> 18) sang = 0;
+  if (clk.hour < 06 || clk.hour > 18) sang = 0;
   else sang = 1;
-  
+
   if (sang && tMenu.index == 1) {
     //int AD = K_D * anhSang_dat;
     on(chieuSang);
@@ -234,20 +305,22 @@ void AnhSang() {
   } else {
     off(chieuSang);
     //anhSang = 0;
-  }*/
+  }
+
+
 }
 
 
 
 void nhietDo_doAm() {
   nhietDo = dht.readTemperature();
-  doAm = dht.readHumidity(); 
-    if (nhietDo > nhietDo_dat + nhietDo_delta_P) on(lamLanh);
-    if (nhietDo <= nhietDo_dat) off(lamLanh);
-    
-    if (nhietDo >= nhietDo_dat) off(lamNong);
-    if (nhietDo < nhietDo_dat - nhietDo_delta_N) on(lamNong);
-    
+  doAm = dht.readHumidity();
+  if (nhietDo > nhietDo_dat + nhietDo_delta_P) on(lamLanh);
+  if (nhietDo <= nhietDo_dat) off(lamLanh);
+
+  if (nhietDo >= nhietDo_dat) off(lamNong);
+  if (nhietDo < nhietDo_dat - nhietDo_delta_N) on(lamNong);
+
   if (doAm > doAm_dat + doAm_delta) off(taoSuong);
   if (doAm < doAm_dat - doAm_delta) on(taoSuong);
 }
@@ -256,11 +329,11 @@ void nhietDo_doAm() {
 //  if (digitalRead(hetNuoc)) suCoHetNuoc();
 //  digitalWrite(coiBaoNuoc, digitalRead(hetNuoc));
 //
-//  
+//
 //}
 
 void suCoHetNuoc() {
-  
+
 }
 
 void hienThi() {
@@ -434,7 +507,7 @@ void writeToEEPROM() {
   EEPROM.put(ADDR_GIAY, giay);
 }
 /*void rtct()
-{
+  {
   Serial.print(myRTC.dayofmonth);             //You can switch between day and month if you're using American system
   Serial.print("/");
   Serial.print(myRTC.month);
@@ -447,65 +520,21 @@ void writeToEEPROM() {
   Serial.print(":");
   Serial.println(myRTC.seconds);
   }*/
-void SS_water (){
-  int reading = analogRead(sensor_Water); 
+void SS_water () {
+  int reading = analogRead(sensor_Water);
   if (reading < 300) {
     int cb1 = 0 ;
-    digitalWrite(coiBaoNuoc, HIGH);}
+    digitalWrite(coiBaoNuoc, HIGH);
+  }
   else {
     digitalWrite(coiBaoNuoc, LOW);
-    int cb1 = 1 ;}
-}
-void SendData(){
-
-//  Serial1.print(nhietDo,0);
-//  Serial1.print('t');
-//  Serial1.print(doAm,0);
-//  Serial1.print('h');
-//  Serial1.print(anhSang,0);
-//  Serial1.print('m');
-//  Serial1.print(coiBaoNuoc,0);
-//  Serial1.print('j');
+    int cb1 = 1 ;
   }
-void receiveData(){
-//    if (Serial1.available()>0){
-//    x = Serial1.read();
-// //   Serial.print(x);
-//    
-//    if (x != 'b'|| x!= 'd' ||x != 'f') {
-//      tam.concat(x);
-//      tam2.concat(x);
-//      tam3.concat(x);
-//    }
-//    if(x == 'b'){
-//        mystring = tam; 
-//        tam = "";
-//        tam2 = "";
-//        tam3 = "";
-//        int q = mystring.indexOf('b', 0);
-//        a = mystring.substring(0, mystring.length());
-//        nhietDo_dat = a.toInt();
-//    //    Serial.print(nhietDo_dat,0);
-//  }
-//    if(x == 'd'){
-//        mystring2 = tam2; 
-//        tam2 = "";
-//        tam = "";
-//        tam3 = "";
-//        int w = mystring2.indexOf('d', 0);
-//        k = mystring2.substring(0, mystring2.length());
-//        doAm_dat = k.toInt();
-//   //     Serial.print(doAm_dat,0);
-//  }
-//    if(x == 'f'){
-//        mystring3 = tam3;
-//        tam = "";
-//        tam2 = "";
-//        tam3 = "";
-//        int r = mystring3.indexOf('f', 0);
-//        u = mystring3.substring(0, mystring3.length());
-//        anhSang_dat = u.toInt();
-//  //      Serial.print(anhSang_dat,0);
-//  }
-// }
+}
+bool SendData(void*) { //  <info>.<t,h,as>;
+  Serial1.print(String("info.") + String(nhietDo) + String(",") + String(doAm) + String(",") + sang ? 1 : 0 + String(";"));
+  return true;
+}
+void receiveData() {
+
 }

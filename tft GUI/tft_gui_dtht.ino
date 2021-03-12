@@ -75,6 +75,7 @@
 #define topBarBackground 0x1a6b
 
 unsigned long lastPing = 0;
+unsigned long lastTouchParamMainScreen;
 
 MCUFRIEND_kbv tft;
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);  //300 Ohm
@@ -86,7 +87,7 @@ uint8_t mode = AUTO;
 
 float temperature = 0, humidity = 0, temperatureSP = 0, humiditySP = 0;
 bool light, prev_light;
-bool outOfWater = false;
+bool outOfWater = false, prev_outOfWater = false;
 
 class Screen {
   public:
@@ -558,6 +559,15 @@ class Wifi {
     void setStrength(signed int str) {
       strength = str;
       bar = map(str, -80, -50, 1, 4);
+    }
+
+    bool pressed = false, prev;
+    void onclicked(void (*f)()) {
+      prev = pressed;
+      pressed = touched && (tx >= x - 5 && tx < x + 22 && ty >= y - hmax && ty < y);
+      if (!prev && pressed ) { //pressed down
+        (*f)();
+      }
     }
 };
 
@@ -1191,11 +1201,11 @@ void screenMain() {     //draw main screen
   yt += 50;
   tft.fillCircle(xt - 31, yt - 15, 20, WHITE);
   hIcon.draw(xt - 41, yt - 30);
-  text(String("\u001e\u00ab \u008em: ") + round(humidity) + String("%"), xt, yt, 1, WHITE, &test);   //HUMIDITY
+  text(String("\u001e\u00ab \u008em: ") + (!(humidity >= 0 && humidity <= 100) ? ".." : String( round(humidity)) ) + String("%"), xt, yt, 1, WHITE, &test);  //HUMIDITY
   yt += 50;
   tft.fillCircle(xt - 31, yt - 15, 20, WHITE);
   tIcon.draw(xt - 45, yt - 29);
-  text(String("Nhi\u009bt \u001f\u00ab: ") + round(temperature) + String("\u001d"), xt, yt, 1, WHITE, &test); //TEMPERATURE
+  text(String("Nhi\u009bt \u001f\u00ab: ") + (!(temperature > -10 && temperature < 60) ? ".." : String( round(temperature)) ) + String("\u001d"), xt, yt, 1, WHITE, &test); //TEMPERATURE
 
   GradLineH(20, 240, 250, 1, {255, 255, 255}, {8, 44, 54}).draw();
   gotoSetupBtn.draw(45, 260);
@@ -1209,22 +1219,62 @@ void screenMain() {     //draw main screen
   accident.h = 30;
   accident.yText = 20;
   accident.backcolor = Backcolor;
-  if (outOfWater) {
-    accident.xText = 10;
-    accident.color = RED;
-    accident.draw("Ho\u0098t n\u00b8\u00aec!", xt - 30, yt + 125);
-  } else {
-    accident.xText = 5;
-    accident.color = GREEN;
-    accident.draw("Ho\u0084t \u001f\u00abng t\u00a8t", xt - 30, yt + 125);
-  }
   automode.draw(xt, yt + 15);
-  uint8_t temp = 99;
+  if (!(humidity >= 0 && humidity <= 100) || !(temperature >= -10 && temperature <= 60)) {
+    accident.xText = 6;
+    accident.color = RED;
+    accident.draw("L\u00aai c\u0082m bi\u0098n!", 315, 275);
+  } else if (outOfWater) {
+    accident.xText = 9;
+    accident.color = RED;
+    accident.draw("H\u0098t n\u00b8\u00aec!", 315, 275);
+  } else {
+    accident.xText = 7 ;
+    accident.color = GREEN;
+    accident.draw("Ho\u0084t \u001f\u00abng t\u00a8t", 315, 275);
+  }
+
+  lastTouchParamMainScreen = millis();
+  bool prev_touch = false;
   while (true) {
+    xt = 30, yt = 80;
     checkTouch();
+    if (!(humidity >= 0 && humidity <= 100) || !(temperature >= -10 && temperature <= 60)) {
+      accident.xText = 6;
+      accident.color = RED;
+      accident.draw("L\u00aai c\u0082m bi\u0098n!", 315, 275);
+    } else //if (prev_outOfWater != outOfWater) {
+      //outOfWater = prev_outOfWater;
+      if (outOfWater) {
+        accident.xText = 0;
+        accident.color = RED;
+        accident.draw("H\u0098t n\u00b8\u00aec!", 315, 275);
+      } else {
+        accident.xText = 0 ;
+        accident.color = GREEN;
+        accident.draw("Ho\u0084t \u001f\u00abng t\u00a8t", 315, 275);
+      }
+    }
+    if (touched && (prev_touch != touched) && (millis() - lastTouchParamMainScreen > 500)) { //
+      Serial.println("touched");
+      lastTouchParamMainScreen = millis();
+      if (tx >= xt && ty >= yt && tx < xt + 240 && ty < yt + 40) {
+        light = !light;
+        tft.fillRect(200 - 3, 115 - 40, 70, 50, Backcolor);
+        text(String(light ? "B\u0090t" : "T\u0087t"), 200, 115, 1, WHITE, &test);
+        Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+      }
+      yt += 50;
+      if (tx >= xt && ty >= yt && tx < xt + 240 && ty < yt + 92) {
+        screen.add(HT_INPUT);
+      }
+    }
+    prev_touch = touched;
+
     gotoSetupBtn.onclicked([] {screen.add(SETUP);});
     if (screen.hasJustChanged()) break;
   }
+
 }
 
 void screenSetup() {
@@ -1272,8 +1322,8 @@ void screenEnvirScreen() {
     header.onclicked();
     menuEnvir.list[0].onclicked([] {
       light = !light;
-      Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light? "1" : "0") + ';');
-      Serial.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light? "1" : "0") + ';');
+      Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+      Serial.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
     });
     if (prev_light != light) {
       prev_light = light;
@@ -1542,6 +1592,10 @@ void checkTouch() {
       }
     }
   }
+
+  wifi.onclicked([] {
+    screen.add(wifi.stt ? WIFI_STATUS : WIFI_LIST);
+  });
 }
 
 void serial() {
@@ -1653,6 +1707,14 @@ void serial() {
           humiditySP = value;
         } else {
           light = value == 0 ? false : true;
+          if (screen.current() == MAIN) {
+            int xt = 200, yt = 115;
+            //if (t_light != light) {
+            //light = t_light;
+            tft.fillRect(xt - 3, yt - 40, 70, 50, Backcolor);
+            text(String(light ? "B\u0090t" : "T\u0087t"), xt, yt, 1, WHITE, &test);
+            //}
+          }
         }
         Serial2.print(String("setpoint.") + pt + ":" + svalue + ";");
       }
@@ -1660,33 +1722,54 @@ void serial() {
   }
 
   switch (cmd2.read()) {
-    case 0: 
+    case 0:
       {
         String s = cmd2.param;
         int comma1 = s.indexOf(',');
-        temperature = s.substring(0, comma1).toFloat();
+        float t_temperature = s.substring(0, comma1).toFloat();
+
         int comma2 = s.indexOf(',', comma1 + 1);
-        humidity = s.substring(comma1 + 1, comma2).toFloat();
+        float t_humidity = s.substring(comma1 + 1, comma2).toFloat();
         char as = s.charAt(s.length() - 1);
+        bool t_light;
         if (as == '0') {
-          light = false;
+          t_light = false;
         } else {
-          light = true;
+          t_light = true;
         }
-        Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + String(as) + ';');
-        Serial.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + String(as) + ';');
+        if (screen.current() == MAIN) {
+          int xt = 200, yt = 115;
+
+          yt += 50;
+          xt -= 36;
+          if (humidity != t_humidity) {
+            humidity = t_humidity;
+            tft.fillRect(xt - 3, yt - 35, 100, 45, Backcolor);
+            text( (!(humidity >= 0 && humidity <= 100) ? ".." : String( round(humidity)) ) + String("%"), xt, yt, 1, WHITE, &test);
+          }
+          yt += 50;
+          xt += 29;
+          if (temperature != t_temperature) {
+            temperature = t_temperature;
+            tft.fillRect(xt - 3, yt - 35, 80, 45, Backcolor);
+            text((!(temperature > -10 && temperature < 60) ? ".." : String( round(temperature)) ) + String("\u001d"), xt, yt, 1, WHITE, &test);
+          }
+        }
+
+        Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + "nope" + ';');
       }
       break;
     case 1:
       {
         String s = cmd2.param;
         if (s == "1") {
-          outOfWater = false;
+          prev_outOfWater = false;
         } else {
-          outOfWater = true;
-
+          prev_outOfWater = true;
         }
-        Serial3.print(String("water.") + s);
+
+        Serial3.print(String("water.") + s + String(";"));
+        Serial.print(String("water.") + s + String(";"));
       }
   }
 }

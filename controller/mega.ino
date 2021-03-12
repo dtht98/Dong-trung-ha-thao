@@ -39,7 +39,7 @@
 #define ADDR_CYCLE 13
 #define ADDR_GIAY 14
 
-float nhietDo, doAm, nhietDo_dat(19), doAm_dat(77.5);
+float nhietDo = 0.0, doAm = 0.0, nhietDo_dat(19), doAm_dat(77.5);
 
 boolean sang = true, outOfWater = false;
 
@@ -53,8 +53,8 @@ class Command {
     String param;
 
     int read() {
-      while (Serial.available() > 0) {
-        char b = Serial.read();
+      while (Serial2.available() > 0) {
+        char b = Serial2.read();
         if (b == '\n') return -1;
         if (b == ';') {
           String temp = buffer;
@@ -90,7 +90,9 @@ auto timer = timer_create_default();
 uintptr_t task;
 
 void setup() {
+  Serial2.begin(9600);
   Serial.begin(9600);
+  Serial2.print("flush;");
   pinMode(13, OUTPUT);
   pinMode(lamLanh, OUTPUT);
   pinMode(taoSuong, OUTPUT);
@@ -112,7 +114,6 @@ void loop() {
   SS_water ();
   serial();
 }
-
 
 void nhietDo_doAm() {
   nhietDo = dht.readTemperature();
@@ -160,7 +161,7 @@ void SS_water () {
   if (reading < 300) {
     outOfWater = true;
     digitalWrite(coiBaoNuoc, HIGH);
-    
+
   }
   else {
     outOfWater = false;
@@ -170,8 +171,9 @@ void SS_water () {
 }
 
 bool SendData(void*) { //  <info>.<t,h,as>;
-  Serial2.print(String("info.") + String(nhietDo) + String(",") + String(doAm) + String(",") + sang ? 1 : 0 + String(";"));
-  Serial2.print(String("water.") + (outOfWater? "0" : "1")); 
+  Serial2.print(String("info.") + String(nhietDo) + String(",") + String(doAm) + String(",") + (sang ? "1" : "0") + String(";"));
+  Serial2.print(String("water.") + (outOfWater ? "0" : "1") + String(";"));
+  Serial.print(String("water.") + (outOfWater ? "0" : "1") + String(";"));
   return true;
 }
 

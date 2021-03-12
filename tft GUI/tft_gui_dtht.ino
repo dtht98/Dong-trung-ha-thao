@@ -84,8 +84,9 @@ int tx, ty, tz;
 bool touched, modeChangedRecently = false;
 uint8_t mode = AUTO;
 
-float temperature = 19, humidity = 80, temperatureSP = 18, humiditySP = 90;
+float temperature = 0, humidity = 0, temperatureSP = 0, humiditySP = 0;
 bool light, prev_light;
+bool outOfWater = false;
 
 class Screen {
   public:
@@ -196,11 +197,11 @@ class {
     }
 } cmd;
 
-#define N_COMMAND2 1
+#define N_COMMAND2 2
 class {
   public:
     uint8_t port = 0;
-    const String cmd[N_COMMAND2] = {"info"};
+    const String cmd[N_COMMAND2] = {"info", "water"};
     const uint8_t ncmd = N_COMMAND2;
     bool done = false;
     String buffer = "";
@@ -237,8 +238,8 @@ class {
     }
 } cmd2;
 
-//------------------------------------------------------For showing bitmap image------------------------------------------------------
-File file;
+//------------------------------------------------------For showing bitmap image and logging (work with SD card)------------------------------------------------------
+File file, log_file;
 
 uint16_t read16(File f)
 {
@@ -374,6 +375,41 @@ class ImageFromSRAM {
       }
     }
 };
+
+//class Logger {
+//  public:
+//    String fileName = "log.txt";
+//
+//    void init() {
+//      SD.remove(fileName);
+//      log_file = SD.open(fileName, FILE_WRITE);
+//      if (!log_file) {
+//        Serial.print("error opening log file");
+//        return;
+//      } else {
+//        log_file.println("\u001fi\u009bn");     //          //  194
+//      }
+//      log_file.close();
+//    }
+//    void read() {
+//      log_file = SD.open(fileName);
+//      if (!log_file) {
+//        Serial.print("error reading log file");
+//        return;
+//      } else {
+//        log_file.seek(0);
+//        Serial.println((uint8_t)log_file.read());
+//        Serial.println((uint8_t)log_file.read());
+//        Serial.println((uint8_t)log_file.read());
+//        Serial.println((uint8_t)log_file.read());
+//        Serial.println((uint8_t)log_file.read());
+//        Serial.println((uint8_t)log_file.read());
+//        Serial.println((uint8_t)log_file.read());
+//      }
+//      log_file.close();
+//    }
+//};
+//Logger logger;
 
 //---------------------------------------------------------------Graphics: Gradient-----------------------------------------------------
 typedef struct {
@@ -586,16 +622,22 @@ Clock clk;
 class Message {
   public:
     String s;
-    int w = 100, h = 20, x, y, xText = 3, yText = 3;
+    int w = 100, h = 20, x, y, xText = 3, yText = 3, sizeText = 1;
     uint16_t color = WHITE;
     const GFXfont *font = NULL;
+    uint16_t backcolor = RED;
 
     void draw(String _s, int xx, int yy) {
       s = _s;
       x = xx;
       y = yy;
-      tft.fillRect(x, y, w, h, RED);
-      text(s, x + xText, y + yText, 1, color, font);
+      tft.fillRect(x, y, w, h, backcolor);
+      text(s, x + xText, y + yText, sizeText, color, font);
+    }
+
+    void redraw() {
+      tft.fillRect(x, y, w, h, backcolor);
+      text(s, x + xText, y + yText, sizeText, color, font);
     }
 };
 Message msg;
@@ -1131,6 +1173,7 @@ void drawTopBar() {
 void screenMain() {     //draw main screen
   GroupBox thongso("Th\u00a6ng s\u00a8:", 10, 55, 280, 310), groupBox2("", 295, 150, 470, 310);
   Btn gotoSetupBtn("T\u00aei b\u0082ng \u001fi\u0097u khi\u0099n");
+  Message accident;
 
   groupBox2.hideLine = 0;
   tft.fillRect(0, gr.p[2], wscr, hscr - gr.p[2], Backcolor);
@@ -1160,29 +1203,25 @@ void screenMain() {     //draw main screen
   groupBox2.draw();
   xt = groupBox2.x + 40;
   yt = groupBox2.y;
-  String s;
 
+  accident.font = &ss10pt;
+  accident.w = 150;
+  accident.h = 30;
+  accident.yText = 20;
+  accident.backcolor = Backcolor;
+  if (outOfWater) {
+    accident.xText = 10;
+    accident.color = RED;
+    accident.draw("Ho\u0098t n\u00b8\u00aec!", xt - 30, yt + 125);
+  } else {
+    accident.xText = 5;
+    accident.color = GREEN;
+    accident.draw("Ho\u0084t \u001f\u00abng t\u00a8t", xt - 30, yt + 125);
+  }
+  automode.draw(xt, yt + 15);
   uint8_t temp = 99;
   while (true) {
     checkTouch();
-    if (mode != temp) {
-      temp = mode;
-      switch (mode) {
-        case AUTO:
-          s = String("T\u00bd \u001f\u00abng");
-          tft.fillRect(xt - 26, yt + 117, 157, 28, Backcolor);
-          text(String("Ch\u0098 \u001f\u00ab: ") + s, xt - 25, yt + 135, 1, WHITE, &ss10pt);
-          automode.draw(xt, yt + 15);
-          break;
-        case MANUAL:
-          s = String("B\u0086ng tay");
-          tft.fillRect(xt - 26, yt + 117, 157, 28, Backcolor);
-          text(String("Ch\u0098 \u001f\u00ab: ") + s, xt - 25, yt + 135, 1, WHITE, &ss10pt);
-          manualmode.draw(xt, yt + 15);
-      }
-    }
-
-    automode.onclicked(switchMode);
     gotoSetupBtn.onclicked([] {screen.add(SETUP);});
     if (screen.hasJustChanged()) break;
   }
@@ -1233,6 +1272,8 @@ void screenEnvirScreen() {
     header.onclicked();
     menuEnvir.list[0].onclicked([] {
       light = !light;
+      Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light? "1" : "0") + ';');
+      Serial.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light? "1" : "0") + ';');
     });
     if (prev_light != light) {
       prev_light = light;
@@ -1599,19 +1640,19 @@ void serial() {
         wifi.drawSignal(true);
       }
       break;
-    case 5:
+    case 5:  // setpoint
       {
         String s = cmd.param;
         int sp = s.indexOf(':');
         String pt = s.substring(0, sp);
-        String svalue = s.substring(sp+1, s.length());
+        String svalue = s.substring(sp + 1, s.length());
         float value = svalue.toFloat();
         if (pt == "t") {
           temperatureSP = value;
         } else if (pt == "h") {
           humiditySP = value;
         } else {
-          light = value == 0? false : true;
+          light = value == 0 ? false : true;
         }
         Serial2.print(String("setpoint.") + pt + ":" + svalue + ";");
       }
@@ -1619,7 +1660,7 @@ void serial() {
   }
 
   switch (cmd2.read()) {
-    case 0:  // receive wifi list
+    case 0: 
       {
         String s = cmd2.param;
         int comma1 = s.indexOf(',');
@@ -1633,8 +1674,19 @@ void serial() {
           light = true;
         }
         Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + String(as) + ';');
+        Serial.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + String(as) + ';');
       }
-
       break;
+    case 1:
+      {
+        String s = cmd2.param;
+        if (s == "1") {
+          outOfWater = false;
+        } else {
+          outOfWater = true;
+
+        }
+        Serial3.print(String("water.") + s);
+      }
   }
 }

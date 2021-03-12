@@ -15,14 +15,16 @@ String months[12] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "1
 
 
 char auth[] = "qJGUs1-T3mqFFpvshJwGSXHvXdGrRTQ5";
-String myblynk, tam, temperature = "11", humidity = "34", light = "0", j;
+String myblynk, tam, temperature = "11", humidity = "34", j;
+String waterState = "1";
+bool light;
 
 String date;
 
-#define N_COMMAND 5
+#define N_COMMAND 6
 class Command {
   public:
-    const String cmd[N_COMMAND] = {"scan", "connect", "disconnect", "info", "get"};
+    const String cmd[N_COMMAND] = {"scan", "connect", "disconnect", "info", "get", "water"};
     const uint8_t ncmd = N_COMMAND;
     bool done = false;
     String buffer = "";
@@ -128,7 +130,10 @@ BLYNK_WRITE(V4) {     //Cai dat gia tri Do am//
 }
 BLYNK_WRITE(V5) {      // Cai dat gia tri Anh sang//
   int pinValue = param.asInt();
-  Serial.print(String("setpoint.") +  String("as:") + pinValue + String(";"));
+  if (pinValue == 1) {
+    light = !light;
+    Serial.print(String("setpoint.") +  String("as:") + (light ? "1" : "0") + String(";"));
+  }
 }
 
 //VIET LEN APP BLYNK//////
@@ -137,19 +142,7 @@ void myTimerEvent()
   Blynk.virtualWrite(V0, temperature);
   Blynk.virtualWrite(V1, humidity);
   Blynk.virtualWrite(V2, light);
-  timeClient.update(); // cập nhật sever thời gian hiện tại
-
-  //  Serial.print(timeClient.getHours());
-  //  Serial.print(":");
-  //  Serial.print(String(timeClient.getMinutes()));
-  //  Serial.print(":");
-  //  Serial.print(String(timeClient.getSeconds()));
-  //  Serial.println("");
-  //  Serial.print(String(timeClient.getDay()));
-  //  Serial.println("/");
-  //  delay(1000);
-  //    Blynk.run();
-  //    timer.run();
+  Blynk.virtualWrite(V6, waterState);
 }
 void setup() {
   Serial.begin(9600);
@@ -243,7 +236,7 @@ void loop() {
         int vt_phay2 = s.indexOf(',', vt_phay1 + 1);
         temperature = s.substring(0, vt_phay1);          //chuoi tu vi tri 0 - (vt_phay1 -1) = 24.5
         humidity = s.substring(vt_phay1, vt_phay2);
-        light = s.substring(vt_phay2, s.length());
+        light = s.substring(vt_phay2, s.length()) == "0" ? false : true;
       }
       break;
     case 4:
@@ -254,6 +247,12 @@ void loop() {
             Serial.print("connected." + WiFi.SSID() + "::" + WiFi.psk() + ";");
           }
         }
+      }
+      break;
+    case 5:
+      {
+        waterState = cmd.param;
+
       }
   }
 

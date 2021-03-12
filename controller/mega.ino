@@ -43,7 +43,7 @@ float nhietDo, doAm, nhietDo_dat(19), doAm_dat(77.5);
 
 boolean sang = true, outOfWater = false;
 
-#define N_COMMAND 3
+#define N_COMMAND 1
 class Command {
   public:
     const String cmd[N_COMMAND] = {"setpoint"};
@@ -177,7 +177,7 @@ bool SendData(void*) { //  <info>.<t,h,as>;
 
 void serial() {                //  truyen thong
   switch (cmd.read()) {
-    case 0:
+    case 0:  //setpoint
       {
         String s = cmd.param;
         int sp = s.indexOf(':');

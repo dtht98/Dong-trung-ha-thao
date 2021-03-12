@@ -235,8 +235,8 @@ void loop() {
         int vt_phay1 = s.indexOf(',');                   //vi tri cua ky tu =4
         int vt_phay2 = s.indexOf(',', vt_phay1 + 1);
         temperature = s.substring(0, vt_phay1);          //chuoi tu vi tri 0 - (vt_phay1 -1) = 24.5
-        humidity = s.substring(vt_phay1, vt_phay2);
-        light = s.substring(vt_phay2, s.length()) == "0" ? false : true;
+        humidity = s.substring(vt_phay1 + 1, vt_phay2);
+        light = s.substring(vt_phay2 + 1, s.length()) == "0" ? false : true;
       }
       break;
     case 4:

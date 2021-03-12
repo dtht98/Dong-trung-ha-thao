@@ -3,6 +3,8 @@
 #include <NTPClient.h>
 #include <Ticker.h>
 #include <BlynkSimpleEsp8266.h>
+#define BLYNK_MAX_SENDBYTES 256
+
 
 WiFiUDP ntpUDP;                 //giao thưc TCP
 NTPClient timeClient(ntpUDP, "pool.ntp.org");
@@ -14,10 +16,14 @@ String weekDays[7] = {"0", "1", "2", "3", "4", "5", "6"};
 String months[12] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
 
 WidgetLED w(V6);
-char auth[] = "qJGUs1-T3mqFFpvshJwGSXHvXdGrRTQ5";
+//char auth[] = "qJGUs1-T3mqFFpvshJwGSXHvXdGrRTQ5";
+char auth[] = "vg7WD2YadZ8PkaV3wBAYHFVlwdKzRchk";
+
 String myblynk, tam, temperature = "11", humidity = "34", j;
 String waterState = "1";
 bool light;
+bool water_notified = false;
+unsigned long last_notification = 0;
 
 String date;
 
@@ -257,8 +263,18 @@ void loop() {
     case 5:
       {
         waterState = cmd.param;
-        if (waterState) w.on();
-        else w.off();
+        if (waterState == "1") {  //con nuoc
+          w.off();
+          water_notified = false;
+        }
+        else {
+          w.on();     // het nuoc
+          if (!water_notified && ((millis() - last_notification > 1000) || last_notification == 0)) {
+            Blynk.notify(" Hết nước!");
+            water_notified = true;
+            last_notification = millis();
+          }
+        }
       }
   }
 

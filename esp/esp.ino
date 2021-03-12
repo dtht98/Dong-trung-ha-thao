@@ -131,8 +131,8 @@ BLYNK_WRITE(V4) {     //Cai dat gia tri Do am//
 BLYNK_WRITE(V5) {      // Cai dat gia tri Anh sang//
   int pinValue = param.asInt();
   if (pinValue == 1) {
-    light = 1;
-  } else light = 0;
+    light = true;
+  } else light = false;
   Serial.print(String("setpoint.") +  String("as:") + (light ? "1" : "0") + String(";"));
 }
 
@@ -236,7 +236,8 @@ void loop() {
         int vt_phay2 = s.indexOf(',', vt_phay1 + 1);
         temperature = s.substring(0, vt_phay1);          //chuoi tu vi tri 0 - (vt_phay1 -1) = 24.5
         humidity = s.substring(vt_phay1 + 1, vt_phay2);
-        light = s.substring(vt_phay2 + 1, s.length()) == "0" ? false : true;
+        String ls = s.substring(vt_phay2 + 1, s.length());
+        if (ls != "nope") light = ls == "0" ? false : true;
         Blynk.virtualWrite(V0, temperature);
         Blynk.virtualWrite(V1, humidity);
         Blynk.virtualWrite(V5, light);

@@ -13,7 +13,7 @@ String weekDays[7] = {"0", "1", "2", "3", "4", "5", "6"};
 //Month names
 String months[12] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
 
-
+WidgetLED w(V6);
 char auth[] = "qJGUs1-T3mqFFpvshJwGSXHvXdGrRTQ5";
 String myblynk, tam, temperature = "11", humidity = "34", j;
 String waterState = "1";
@@ -131,18 +131,18 @@ BLYNK_WRITE(V4) {     //Cai dat gia tri Do am//
 BLYNK_WRITE(V5) {      // Cai dat gia tri Anh sang//
   int pinValue = param.asInt();
   if (pinValue == 1) {
-    light = !light;
-    Serial.print(String("setpoint.") +  String("as:") + (light ? "1" : "0") + String(";"));
-  }
+    light = 1;
+  } else light = 0;
+  Serial.print(String("setpoint.") +  String("as:") + (light ? "1" : "0") + String(";"));
 }
 
 //VIET LEN APP BLYNK//////
 void myTimerEvent()
 {
-  Blynk.virtualWrite(V0, temperature);
-  Blynk.virtualWrite(V1, humidity);
-  Blynk.virtualWrite(V2, light);
-  Blynk.virtualWrite(V6, waterState);
+  //  Blynk.virtualWrite(V0, temperature);
+  //  Blynk.virtualWrite(V1, humidity);
+  //  Blynk.virtualWrite(V5, light);
+  //  Blynk.virtualWrite(V6, waterState);
 }
 void setup() {
   Serial.begin(9600);
@@ -237,6 +237,10 @@ void loop() {
         temperature = s.substring(0, vt_phay1);          //chuoi tu vi tri 0 - (vt_phay1 -1) = 24.5
         humidity = s.substring(vt_phay1 + 1, vt_phay2);
         light = s.substring(vt_phay2 + 1, s.length()) == "0" ? false : true;
+        Blynk.virtualWrite(V0, temperature);
+        Blynk.virtualWrite(V1, humidity);
+        Blynk.virtualWrite(V5, light);
+        Serial.print("da nhan;");
       }
       break;
     case 4:
@@ -252,7 +256,8 @@ void loop() {
     case 5:
       {
         waterState = cmd.param;
-
+        if (waterState) w.on();
+        else w.off();
       }
   }
 

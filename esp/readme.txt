@@ -1,0 +1,1 @@
+Đây là code ESP8266, định dùng trong lần thử nghiệm đầu tiên nhưng không thành do lỗi gì đó không kết nối được Serial UART giữa hai con esp với mega.

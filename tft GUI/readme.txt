@@ -1,0 +1,1 @@
+Code ở arduino mega gắn với màn hình cảm ứng, chỉ hiển thị

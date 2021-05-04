@@ -23,15 +23,6 @@
 #define chieuSang 12
 #define coiBaoNuoc 13
 
-
-#define NORMAL 0
-#define MAIN_MENU 1
-#define TEMPERATURE_SETUP 3
-#define HUMIDITY_SETUP 4
-#define BRIGHTNESS_SETUP 2
-#define CYCLE_SETUP 5
-#define LONG_PRESS 1000
-
 #define ADDR_FLAG 0
 #define ADDR_ANHSANG 1
 #define ADDR_NHIETDO 5
@@ -115,8 +106,8 @@ void loop() {
 }
 
 void nhietDo_doAm() {
-  nhietDo = dht.readTemperature();
-  doAm = dht.readHumidity();
+  nhietDo = 20;//dht.readTemperature();
+  doAm = 80;//dht.readHumidity();
   if (nhietDo > nhietDo_dat + nhietDo_delta_P) on(lamLanh);
   if (nhietDo <= nhietDo_dat) off(lamLanh);
 

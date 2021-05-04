@@ -14,16 +14,15 @@
 #define doAm_delta 2
 
 #define DHTTYPE DHT22
-#define DHTPIN 22
-#define lamLanh 24
+#define DHTPIN 4
+#define sensor_Water A0
 
-#define taoSuong 26
-#define lamNong 28
-#define chieuSang 30
-#define coiBaoNuoc 5
-#define volumePin A0
-#define sensor_Water A1
-//#define hetNuoc
+#define lamLanh 5
+#define taoSuong 6
+#define lamNong 11
+#define chieuSang 12
+#define coiBaoNuoc 13
+
 
 #define NORMAL 0
 #define MAIN_MENU 1
@@ -54,8 +53,8 @@ class Command {
     String param;
 
     int read() {
-      while (Serial2.available() > 0) {
-        char b = Serial2.read();
+      while (Serial.available() > 0) {
+        char b = Serial.read();
         if (b == '\n') return -1;
         if (b == ';') {
           String temp = buffer;
@@ -91,10 +90,9 @@ auto timer = timer_create_default();
 uintptr_t task;
 
 void setup() {
-  Serial2.begin(9600);
   Serial.begin(9600);
-  Serial2.print("flush;");
-  pinMode(13, OUTPUT);
+  Serial.print("flush;");
+//  pinMode(13, OUTPUT);
   pinMode(lamLanh, OUTPUT);
   pinMode(taoSuong, OUTPUT);
   pinMode(coiBaoNuoc, OUTPUT);
@@ -172,16 +170,15 @@ void SS_water () {
 }
 
 bool SendData(void*) { //  <info>.<t,h,as>;
-  Serial2.print(String("info.") + String(nhietDo) + String(",") + String(doAm) + String(",") + (sang ? "1" : "0") + String(";"));
-  Serial2.print(String("water.") + (outOfWater ? "0" : "1") + String(";"));
+  Serial.print(String("info.") + String(nhietDo) + String(",") + String(doAm) + String(",") + (sang ? "1" : "0") + String(";"));
   Serial.print(String("water.") + (outOfWater ? "0" : "1") + String(";"));
+  //   Serial.print(String("water.") + (outOfWater ? "0" : "1") + String(";"));
   return true;
 }
 
 void serial() {                //  truyen thong
   switch (cmd.read()) {
-    case 0:  //setpoint
-      {
+    case 0: {  //setpoint
         String s = cmd.param;
         int sp = s.indexOf(':');
         String pt = s.substring(0, sp);

@@ -1189,19 +1189,16 @@ void screenMain() {     //draw main screen
   Btn gotoSetupBtn("T\u00aei b\u0082ng \u001fi\u0097u khi\u0099n");
   Message accident;
 
-  delay_ms(1000);
   Serial.print("start draw main");
   groupBox2.hideLine = 0;
   tft.fillRect(0, gr.p[2], wscr, hscr - gr.p[2], Backcolor);
-delay_s(4);
-  tft.fillRect(0, gr.p[2], wscr, hscr - gr.p[2], WHITE);
   //clock
   int xt = 300, yt = 90;
-  //drawTime(true);
-  //tft.drawFastVLine(xt - 5, yt - 40, 85, WHITE);
-  //tft.drawFastHLine(xt - 5, yt + 45, 170, WHITE);
+  drawTime(true);
+  tft.drawFastVLine(xt - 5, yt - 40, 85, WHITE);
+  tft.drawFastHLine(xt - 5, yt + 45, 170, WHITE);
   //GradLineH(295, 125, 180, 1, {255, 255, 255}, {8, 44, 54}).draw();
-  /*thongso.draw();
+  thongso.draw();
   xt = thongso.x + 70, yt = thongso.y + 60;
   tft.fillCircle(xt - 31, yt - 15, 20, WHITE);
   lIcon.draw(xt - 45, yt - 29);
@@ -1244,7 +1241,6 @@ delay_s(4);
 
   lastTouchParamMainScreen = millis();
   bool prev_touch = false;
-*/
 }
 
 void screenSetup() {
@@ -1467,6 +1463,29 @@ void screenWifiStatus() {
 TaskHandle_t Task_Display_Handle;
 TaskHandle_t Task_Serial_Handle;
 TaskHandle_t Task_Touch_Handle;
+TaskHandle_t Task_Report_Handle;
+
+void suspendToDisplay() {
+  vTaskSuspend(Task_Serial_Handle);
+  vTaskSuspend(Task_Touch_Handle);
+  vTaskSuspend(Task_Report_Handle);
+  //vTaskResume(Task_Display_Handle);
+}
+
+void resumeAfterDisplay() {
+  //vTaskSuspend(Task_Display_Handle);
+  vTaskResume(Task_Serial_Handle);
+  vTaskResume(Task_Touch_Handle);
+  vTaskResume(Task_Report_Handle);
+}
+
+void report(TaskHandle_t handle) {
+  Serial.print("- TASK ");
+  Serial.print(pcTaskGetName(handle)); // Get task name with handler
+  Serial.print(", High Watermark: ");
+  Serial.print(uxTaskGetStackHighWaterMark(handle));
+  Serial.println();
+}
 
 /*
   void Task_( void *pvParameters ) {
@@ -1481,9 +1500,8 @@ TaskHandle_t Task_Touch_Handle;
 void Task_Display( void *pvParameters ) {
   (void) pvParameters;
   Serial.println("task display");
-  tft.fillRect(0, gr.p[2], wscr, hscr - gr.p[2], Backcolor);
+    suspendToDisplay();
   while (true) {
-    Serial.print(".");
     switch (screen.current()) {
       case MAIN:
         screenMain();
@@ -1507,7 +1525,8 @@ void Task_Display( void *pvParameters ) {
         screenWifiStatus();
         break;
     }
-    delay_s(4);
+    //resumeAfterDisplay();
+    vTaskSuspend(Task_Display_Handle);
   }
 }
 
@@ -1516,7 +1535,6 @@ void Task_Serial( void *pvParameters ) {
   String s, s2;
   int sp, sp1, sp2, sp3, sp4, sp5;
   while (true) {
-    vTaskDelay(10000);
     int icmd = cmd.read();
     switch (icmd) {
       case 0:  // receive wifi list
@@ -1640,7 +1658,7 @@ void Task_Serial( void *pvParameters ) {
     switch (cmd2.read()) {
       case 0:
         {
-          
+
           String s = cmd2.param;
           int comma1 = s.indexOf(',');
           float t_temperature = s.substring(0, comma1).toFloat();
@@ -1696,7 +1714,6 @@ void Task_Touch( void *pvParameters ) {
   (void) pvParameters;
 
   while (true) {
-     vTaskDelay(10000);
     digitalWrite(13, HIGH);
     TSPoint p = ts.getPoint();
     digitalWrite(13, LOW);
@@ -1738,20 +1755,14 @@ void Task_Report( void *pvParameters ) {
     Serial.print(", Task count: ");
     Serial.println(uxTaskGetNumberOfTasks());
 
-    report(NULL);
+    report(Task_Report_Handle);
     report(Task_Display_Handle);
     report(Task_Serial_Handle);
     report(Task_Touch_Handle);
     delay_s(10);
   }
 }
-void report(TaskHandle_t handle) {
-  Serial.print("- TASK ");
-  Serial.print(pcTaskGetName(handle)); // Get task name with handler
-  Serial.print(", High Watermark: ");
-  Serial.print(uxTaskGetStackHighWaterMark(handle));
-  Serial.println();
-}
+
 
 
 
@@ -1796,8 +1807,6 @@ void setup(void) {
   drawTopBar();
   screen.add(MAIN);
   screen.hasJustChanged();
-    
-
 
   xTaskCreate(
     Task_Serial
@@ -1823,7 +1832,7 @@ void setup(void) {
     , 128  // Stack size
     ,  NULL  //Parameters passed to the task function
     ,   3  // Priority
-    ,  NULL //Task handle
+    ,  &Task_Report_Handle //Task handle
   );
 
   xTaskCreate(
@@ -1831,7 +1840,7 @@ void setup(void) {
     ,  "Display"   // Task name
     ,  1000  // Stack size
     ,  NULL  //Parameters passed to the task function
-    ,   -1  // Priority
+    ,   5  // Priority
     ,  &Task_Display_Handle //Task handle
   );
 }

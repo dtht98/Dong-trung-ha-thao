@@ -228,7 +228,7 @@ void loop() {
         wf.CONNECTED = true;
         break;
       }
-    case 2:
+    case 2:  //disconnect
       {
         WiFi.disconnect();
         delay(100);
@@ -250,7 +250,7 @@ void loop() {
         Serial.print("da nhan;");
       }
       break;
-    case 4:
+    case 4: // get
       {
         String s = cmd.param;
         if (s == "wifi") {
@@ -260,7 +260,7 @@ void loop() {
         }
       }
       break;
-    case 5:
+    case 5:  //water.1, water.0
       {
         waterState = cmd.param;
         if (waterState == "1") {  //con nuoc

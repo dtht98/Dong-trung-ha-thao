@@ -161,7 +161,7 @@ void SS_water () {
 }
 
 bool SendData(void*) { //  <info>.<t,h,as>;
-  Serial.print(String("info.") + String(nhietDo) + String(",") + String(doAm) + String(",") + (sang ? "1" : "0") + String(";"));
+  Serial.print(String("info.") + String(nhietDo) + String(",") + String(doAm) + String(",") + (sang ? "1" : "0") + ',' + String(nhietDo_dat) + ',' + String(doAm_dat) + String(";"));
   Serial.print(String("water.") + (outOfWater ? "0" : "1") + String(";"));
   //   Serial.print(String("water.") + (outOfWater ? "0" : "1") + String(";"));
   return true;
@@ -171,17 +171,15 @@ void serial() {                //  truyen thong
   switch (cmd.read()) {
     case 0: {  //setpoint
         String s = cmd.param;
-        int sp = s.indexOf(':');
-        String pt = s.substring(0, sp);
-        String svalue = s.substring(sp + 1, s.length());
-        float value = svalue.toFloat();
-        if (pt == "t") {
-          nhietDo_dat = value;
-        } else if (pt == "h") {
-          doAm_dat = value;
-        } else {
-          sang = value == 0 ? false : true;
-        }
+        int sp1 = s.indexOf(',');
+        String tsp = s.substring(0, sp);  //temperature
+        int sp2 = s.indexOf(',', sp1 + 1);
+        String hsp = s.substring(sp1 + 1, sp2); //humidity
+        char lsp = s.charAt(s.length() - 1);
+        
+        nhietDo_dat = tsp.toFloat();
+        doAm_dat = hsp.toFloat();
+        sang = lsp == '1'? true: false;
         writeToEEPROM();
       }
       break;

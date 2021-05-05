@@ -2,7 +2,7 @@ const String KeypadSource[] = {
   "7", "8", "9",
   "4", "5", "6",
   "1", "2", "3",
-  ".", "0" , "Xo\u0081"
+  ".", "0" , "x"
 };
 
 const String KeyboardCmd[] = {"?123", "aA", " ", "<<", "Ok"}; //X\u00a2a

@@ -2,6 +2,8 @@
 #include <DHT.h>
 #include <DHT_U.h>
 #include <arduino-timer.h>
+#include <Wire.h>
+#include <ds3231.h>
 
 #define nhietDoMin 16
 #define nhietDoMax 22
@@ -30,7 +32,7 @@
 #define ADDR_CYCLE 13
 #define ADDR_GIAY 14
 
-float nhietDo = 0.0, doAm = 0.0, nhietDo_dat(19), doAm_dat(77.5);
+float nhietDo = 0.0, doAm = 0.0, nhietDo_dat = 19.0, doAm_dat = 77.5;
 
 boolean sang = true, outOfWater = false;
 
@@ -83,7 +85,7 @@ uintptr_t task;
 void setup() {
   Serial.begin(9600);
   Serial.print("flush;");
-//  pinMode(13, OUTPUT);
+  pinMode(13, OUTPUT);
   pinMode(lamLanh, OUTPUT);
   pinMode(taoSuong, OUTPUT);
   pinMode(coiBaoNuoc, OUTPUT);
@@ -94,6 +96,9 @@ void setup() {
 
   readFromEEPROM();
 
+  Wire.begin();
+  DS3231_init(DS3231_CONTROL_INTCN);
+  
   timer.every(1000, SendData);
 }
 
@@ -106,8 +111,8 @@ void loop() {
 }
 
 void nhietDo_doAm() {
-  nhietDo = 20;//dht.readTemperature();
-  doAm = 80;//dht.readHumidity();
+  nhietDo = 10;//dht.readTemperature();
+  doAm = 40;//dht.readHumidity();
   if (nhietDo > nhietDo_dat + nhietDo_delta_P) on(lamLanh);
   if (nhietDo <= nhietDo_dat) off(lamLanh);
 
@@ -119,11 +124,11 @@ void nhietDo_doAm() {
 }
 
 void on(int pin) {
-  digitalWrite(pin, false);
+  digitalWrite(pin, true);
 }
 
 void off(int pin) {
-  digitalWrite(pin, true);
+  digitalWrite(pin, false);
 }
 
 void limit(float * x, float xmin, float xmax) {
@@ -182,6 +187,7 @@ void serial() {                //  truyen thong
         } else {
           sang = value == 0 ? false : true;
         }
+        writeToEEPROM();
       }
       break;
   }

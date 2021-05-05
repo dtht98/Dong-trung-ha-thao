@@ -1193,7 +1193,7 @@ void screenMain() {     //draw main screen
   tft.drawFastVLine(xt - 5, yt - 40, 85, WHITE);
   tft.drawFastHLine(xt - 5, yt + 45, 170, WHITE);
   //GradLineH(295, 125, 180, 1, {255, 255, 255}, {8, 44, 54}).draw();
-  thongso.draw();
+  thongso.draw();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
   xt = thongso.x + 70, yt = thongso.y + 60;
   tft.fillCircle(xt - 31, yt - 15, 20, WHITE);
   lIcon.draw(xt - 45, yt - 29);
@@ -1254,7 +1254,8 @@ void screenMain() {     //draw main screen
         accident.color = GREEN;
         accident.draw("Ho\u0084t \u001f\u00abng t\u00a8t", 315, 275);
       }
-      if (touched && (prev_touch != touched) && (millis() - lastTouchParamMainScreen > 500)) { //
+    }
+    if (touched && (prev_touch != touched) && (millis() - lastTouchParamMainScreen > 500)) { //
         Serial.println("touched");
         lastTouchParamMainScreen = millis();
         if (tx >= xt && ty >= yt && tx < xt + 240 && ty < yt + 40) {
@@ -1272,503 +1273,502 @@ void screenMain() {     //draw main screen
 
       gotoSetupBtn.onclicked([] {screen.add(SETUP);});
       if (screen.hasJustChanged()) break;
-    }
   }
 }
 
-  void screenSetup() {
-    Menu menuSetup(2);
-    menuSetup.list[1].lb = F("C\u0080i \u001f\u008at m\u0084ng");
-    menuSetup.list[0].lb = F("Ch\u009enh th\u00a6ng s\u00a8 m\u00a6i tr\u00b8\u00adng");
+void screenSetup() {
+  Menu menuSetup(2);
+  menuSetup.list[1].lb = F("C\u0080i \u001f\u008at m\u0084ng");
+  menuSetup.list[0].lb = F("Ch\u009enh th\u00a6ng s\u00a8 m\u00a6i tr\u00b8\u00adng");
 
-    clr();
-    header.lb = "C\u001cI \u001e\u001dT";
-    header.draw();
-    menuSetup.draw();
+  clr();
+  header.lb = "C\u001cI \u001e\u001dT";
+  header.draw();
+  menuSetup.draw();
 
-    while (true) {
-      checkTouch();
-      header.onclicked();
-      menuSetup.list[1].onclicked([] {
-        if (!wifi.stt) {
-          Serial3.print("scan;");
-          Serial.println("sent scan cmd");
-          wifi.receivedWifiList = false;
-          wifi.printedWifiList = false;
-          screen.add(WIFI_LIST);
-        } else {
-          screen.add(WIFI_STATUS);
-        }
-      });
-      menuSetup.list[0].onclicked([] {screen.add(ENVIR);});
-      if (screen.hasJustChanged()) break;
-    }
-  }
-
-  void screenEnvirScreen() {
-    Menu menuEnvir(2);
-
-    menuEnvir.list[0].lb = String("\u001e\u0091n chi\u0098u s\u0081ng: ") + (light ? String("B\u0090t") : String("T\u0087t"));
-    menuEnvir.list[1].lb = "Nhi\u009bt \u001f\u00ab, \u001e\u00ab \u008em";
-
-    clr();
-    header.lb = "M\u00a6i tr\u00b8\u00adng";
-    header.draw();
-    menuEnvir.draw();
-
-    while (true) {
-      checkTouch();
-      header.onclicked();
-      menuEnvir.list[0].onclicked([] {
-        light = !light;
-        Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
-        Serial.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
-      });
-      if (prev_light != light) {
-        prev_light = light;
-        menuEnvir.list[0].lb = String("\u001e\u0091n chi\u0098u s\u0081ng: ") + (light ? String("B\u0090t") : String("T\u0087t"));
-        menuEnvir.list[0].draw(true);
-      }
-      menuEnvir.list[1].onclicked([] {screen.add(HT_INPUT);});
-      if (screen.hasJustChanged()) break;
-    }
-  }
-
-  void screenHTInputs() {
-    Keypad keypad;
-
-    keypad.init(280, 120);
-    clr();
-    header.lb = "T,H";
-    header.draw();
-    tInput.value = trimFloat(temperatureSP, 2);
-    hInput.value = trimFloat(humiditySP, 2);
-    int yt = 150;
-    text("Nhi\u009bt \u001f\u00ab:", 10, yt, 1, WHITE, &ss13pt);
-    tInput.draw(130, yt - 25);
-    tInput.select();
-    text("\u00b0\u0043", 235, yt, 1, WHITE, &ss13pt);
-    yt += 50;
-    text("\u001e\u00ab \u008em:", 10, yt, 1, WHITE, &ss13pt);
-    hInput.draw(130, yt - 25);
-    text("\u0025", 235, yt, 1, WHITE, &ss13pt);
-    inputOk.w = 60;
-    inputOk.xText = 15;
-    inputOk.draw(160, yt + 40);
-    keypad.draw();
-
-    while (true) {
-      checkTouch();
-      header.onclicked();
-      tInput.onclicked([] {hInput.deselect();});
-      hInput.onclicked([] {tInput.deselect();});
-      String key = keypad.getPressed();
-      if (key != "") {
-        if (tInput.selected) tInput.typeIn(key);
-        if (hInput.selected) hInput.typeIn(key);
-      }
-      inputOk.onclicked([] {
-        float t = tInput.value.toFloat();
-        float h = hInput.value.toFloat();
-        if (h <= 100) {
-          temperatureSP = t;
-          humiditySP = h;
-          int xt = 30, yt = 260;
-          tft.fillRect(xt, yt, 80, 20, Backcolor);
-          text("\u001e\u0083 l\u00b8u!", xt, yt, 1, GREEN, &ss10pt);
-        }
-      });
-      if (screen.hasJustChanged()) break;
-    }
-  }
-
-  void screenWifiList() {
-    Menu menuWifi(1);
-
-    clr();
-    header.lb = "Wifi";
-    header.draw();
-
-    if (wifi.receivedWifiList) {
-      menuWifi = Menu(wifi.n);
-      for (int i = 0; i < wifi.n; i++) {
-        menuWifi.list[i].lb = String(i + 1) + ". " + wifi.ssid[i] + "  " + wifi.rssi[i];
-        menuWifi.list[i].h = 30;
-        menuWifi.list[i].defaultFont = true;
-      }
-      menuWifi.draw();
-      wifi.printedWifiList = true;
-    }
-
-    while (true) {
-      checkTouch();
-      header.onclicked();
-
-      if (!wifi.receivedWifiList) {
-        msg.draw("Scanning...", 200, 200);
+  while (true) {
+    checkTouch();
+    header.onclicked();
+    menuSetup.list[1].onclicked([] {
+      if (!wifi.stt) {
+        Serial3.print("scan;");
+        Serial.println("sent scan cmd");
+        wifi.receivedWifiList = false;
+        wifi.printedWifiList = false;
+        screen.add(WIFI_LIST);
       } else {
-        if (!wifi.printedWifiList) break;
+        screen.add(WIFI_STATUS);
       }
-
-      for (int i = 0; i < wifi.n; i++) {
-        if (menuWifi.list[i].onclicked([] {
-        screen.add(WIFI_PASSWORD);
-        })) {
-          wifi.name = wifi.ssid[i];
-          break;
-        }
-      }
-
-      if (screen.hasJustChanged()) break;
-    }
-  }
-
-  void screenWifiPassword() {
-    KeyboardTouch keyboard;
-    keyboard.init();
-
-    clr();
-    keyboard.draw();
-    text("Password:", 20, 80, 1, WHITE, &ss13pt);
-    pwInput.draw(150, 50);
-
-    while (true) {
-      checkTouch();
-
-      String key = keyboard.getPressed();
-      if (key != "") {
-        if (key == "ok") {
-          wifi.password = pwInput.value;
-          Serial3.print("connect." + wifi.name + "::" + wifi.password + ";");
-          screen.pop(); screen.pop();
-          screen.add(WIFI_STATUS);
-          break;
-        }
-
-        pwInput.typeIn(key);
-      }
-      if (screen.hasJustChanged()) break;
-    }
-  }
-
-  void screenWifiStatus() {
-    Btn disconnect("Ng\u0087t k\u0098t n\u00a8i");
-
-    clr();
-    header.lb = "Wifi";
-    header.draw();
-    bool flag = false;
-
-    unsigned long t = millis();
-
-    if (wifi.stt) {
-      text("\u001e\u0083 k\u0098t n\u00a8i:", 50, 140, 1, WHITE, &ss13pt);
-      text(wifi.name, 70, 170, 1, WHITE, &ss13pt);
-      flag = true;
-      disconnect.w = 150;
-      disconnect.draw(100, 270);
-    }
-
-    bool failed =  false;
-
-    while (true) {
-      checkTouch();
-      header.onclicked();
-
-      if (!flag) {
-        if (failed) {
-          msg.draw("Failed.", 200, 200);    // failed to connect
-        } else {
-          if (!wifi.stt) {
-            msg.draw("Connecting...", 200, 200);  // connecting
-          } else {
-            msg.draw("Connected.", 200, 200);      // connected
-            Serial.print("Connected.");
-            break;
-          }
-        }
-      }
-
-      disconnect.onclicked([] {
-        Serial3.print("disconnect;");
-        screen.pop();
-      });
-
-      if (screen.hasJustChanged()) break;
-    }
-  }
-
-  //-----------------------------------------------------------------Main program--------------------------------------------------------------
-  void setup(void) {
-    pinMode(11, INPUT);
-    pinMode(12, INPUT);
-    pinMode(13, INPUT);
-    pinMode(53, OUTPUT);
-    Serial.begin(9600);
-    Serial3.begin(9600);
-    Serial2.begin(9600);
-    Serial3.print("flush;");
-
-    uint16_t identifier = tft.readID();
-    tft.begin(identifier);
-
-    // Init SD_Card
-    pinMode(10, OUTPUT);
-    if (!SD.begin(10 )) {
-      tft.setCursor(0, 0);
-      tft.setTextColor(WHITE);
-      tft.setTextSize(1);
-      tft.println("SD Card Init fail.");
-      Serial.println("SD Card Init fail.");
-    }
-
-    cordycepsBox.init();
-    tIcon.init();
-    hIcon.init();
-    lIcon.init();
-    automode.init();
-    manualmode.init();
-
-    pwInput.w = 250;
-
-    clk.set(0, 0, 1, 1, 1111);
-    tft.setRotation(1);
-    serial();
-    drawTopBar();
-    screen.add(MAIN);
-    screen.hasJustChanged();
-  }
-
-  void loop(void) {
-    // tap events
-    switch (screen.current()) {
-      case MAIN:
-        screenMain();
-        break;
-      case SETUP:
-        screenSetup();
-        break;
-      case ENVIR:
-        screenEnvirScreen();
-        break;
-      case WIFI_PASSWORD:
-        screenWifiPassword();
-        break;
-      case HT_INPUT:
-        screenHTInputs();
-        break;
-      case WIFI_LIST:
-        screenWifiList();
-        break;
-      case WIFI_STATUS:
-        screenWifiStatus();
-        break;
-    }
-  }
-
-  void checkTouch() {
-    digitalWrite(13, HIGH);
-    TSPoint p = ts.getPoint();
-    digitalWrite(13, LOW);
-
-    //pinMode(XP, OUTPUT);
-    pinMode(XM, OUTPUT);
-    pinMode(YP, OUTPUT);
-    //pinMode(YM, OUTPUT);
-
-    touched = (p.z > MINPRESSURE);
-    if (touched) {
-      ty = map(p.x, TS_MINX, TS_MAXX, tft.height(), 0);
-      tx = map(p.y, TS_MINY, TS_MAXY, tft.width(), 0);
-    }
-    serial();
-    if (wifi.stt) {
-      if (millis() - lastPing > 2000) {
-        wifi.stt = false;
-        wifi.drawSignal(true);
-        if (screen.current() == WIFI_STATUS) {
-          screen.pop();
-        }
-      }
-    }
-
-    wifi.onclicked([] {
-      screen.add(wifi.stt ? WIFI_STATUS : WIFI_LIST);
     });
+    menuSetup.list[0].onclicked([] {screen.add(ENVIR);});
+    if (screen.hasJustChanged()) break;
+  }
+}
+
+void screenEnvirScreen() {
+  Menu menuEnvir(2);
+
+  menuEnvir.list[0].lb = String("\u001e\u0091n chi\u0098u s\u0081ng: ") + (light ? String("B\u0090t") : String("T\u0087t"));
+  menuEnvir.list[1].lb = "Nhi\u009bt \u001f\u00ab, \u001e\u00ab \u008em";
+
+  clr();
+  header.lb = "M\u00a6i tr\u00b8\u00adng";
+  header.draw();
+  menuEnvir.draw();
+
+  while (true) {
+    checkTouch();
+    header.onclicked();
+    menuEnvir.list[0].onclicked([] {
+      light = !light;
+      Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+      Serial.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+    });
+    if (prev_light != light) {
+      prev_light = light;
+      menuEnvir.list[0].lb = String("\u001e\u0091n chi\u0098u s\u0081ng: ") + (light ? String("B\u0090t") : String("T\u0087t"));
+      menuEnvir.list[0].draw(true);
+    }
+    menuEnvir.list[1].onclicked([] {screen.add(HT_INPUT);});
+    if (screen.hasJustChanged()) break;
+  }
+}
+
+void screenHTInputs() {
+  Keypad keypad;
+
+  keypad.init(280, 120);
+  clr();
+  header.lb = "T,H";
+  header.draw();
+  tInput.value = trimFloat(temperatureSP, 2);
+  hInput.value = trimFloat(humiditySP, 2);
+  int yt = 150;
+  text("Nhi\u009bt \u001f\u00ab:", 10, yt, 1, WHITE, &ss13pt);
+  tInput.draw(130, yt - 25);
+  tInput.select();
+  text("\u00b0\u0043", 235, yt, 1, WHITE, &ss13pt);
+  yt += 50;
+  text("\u001e\u00ab \u008em:", 10, yt, 1, WHITE, &ss13pt);
+  hInput.draw(130, yt - 25);
+  text("\u0025", 235, yt, 1, WHITE, &ss13pt);
+  inputOk.w = 60;
+  inputOk.xText = 15;
+  inputOk.draw(160, yt + 40);
+  keypad.draw();
+
+  while (true) {
+    checkTouch();
+    header.onclicked();
+    tInput.onclicked([] {hInput.deselect();});
+    hInput.onclicked([] {tInput.deselect();});
+    String key = keypad.getPressed();
+    if (key != "") {
+      if (tInput.selected) tInput.typeIn(key);
+      if (hInput.selected) hInput.typeIn(key);
+    }
+    inputOk.onclicked([] {
+      float t = tInput.value.toFloat();
+      float h = hInput.value.toFloat();
+      if (h <= 100) {
+        temperatureSP = t;
+        humiditySP = h;
+        int xt = 30, yt = 260;
+        tft.fillRect(xt, yt, 80, 20, Backcolor);
+        text("\u001e\u0083 l\u00b8u!", xt, yt, 1, GREEN, &ss10pt);
+      }
+    });
+    if (screen.hasJustChanged()) break;
+  }
+}
+
+void screenWifiList() {
+  Menu menuWifi(1);
+
+  clr();
+  header.lb = "Wifi";
+  header.draw();
+
+  if (wifi.receivedWifiList) {
+    menuWifi = Menu(wifi.n);
+    for (int i = 0; i < wifi.n; i++) {
+      menuWifi.list[i].lb = String(i + 1) + ". " + wifi.ssid[i] + "  " + wifi.rssi[i];
+      menuWifi.list[i].h = 30;
+      menuWifi.list[i].defaultFont = true;
+    }
+    menuWifi.draw();
+    wifi.printedWifiList = true;
   }
 
-  void serial() {
-    int icmd = cmd.read();
-    switch (icmd) {
-      case 0:  // receive wifi list
-        {
-          Serial.println("Receive list of wifi:");
-          String s = cmd.param;
-          wifi.n = 0;
-          if (s == "") break;
-          for (int i = 0; i < 10; i++) {
-            int sp = s.indexOf("\\\\");
-            String s2;
-            if (sp != -1) {
-              s2 = s.substring(0, sp);
-            } else {
-              s2 = s;
-            }
-            int sp2 = s.indexOf("::");
-            wifi.ssid[i] = s2.substring(0, sp2);
-            wifi.rssi[i] = s2.substring(sp2 + 2, s2.length()).toInt();
-            wifi.n = wifi.n + 1;
-            if (sp != -1) s = s.substring(sp + 2, s.length());
-            else break;
-          }
+  while (true) {
+    checkTouch();
+    header.onclicked();
 
-          wifi.receivedWifiList = true;
-
-          for (int i = 0; i < wifi.n; i++) {
-            Serial.print(wifi.ssid[i]);
-            Serial.println(wifi.rssi[i]);
-          }
-        }
-        break;
-      case 1:
-        {
-          String s = cmd.param;
-
-          if (s == "1") {
-            wifi.stt = true;
-            Serial.println("connected");
-            lastPing = millis();
-          } else {
-            wifi.stt = false;
-            Serial.println("disconnected");
-          }
-          wifi.drawSignal(true);
-        }
-        break;
-      case 2:  // time.<h>:<m>,<w>,<d>/<m>/<y>
-        {
-          String s = cmd.param;
-
-          int sp1 = s.indexOf(':');
-          uint8_t m = s.substring(0, sp1).toInt();
-          int sp2 = s.indexOf(',', sp1 + 1);
-          clk.hour = s.substring(sp1 + 1, sp2).toInt();
-          int sp3 = s.indexOf(',', sp2 + 1);
-          clk.dayOfWeek = s.substring(sp2 + 1, sp3).toInt();
-          int sp4 = s.indexOf('/', sp3 + 1);
-          uint8_t d = s.substring(sp3 + 1, sp4).toInt();
-          int sp5 = s.indexOf('/', sp4 + 1);
-          clk.month = s.substring(sp4 + 1, sp5).toInt();
-          clk.year = s.substring(sp5 + 1, s.length()).toInt();
-          if (clk.minute != m) {
-            clk.minute = m;
-            bool drawDay = (clk.day != d);
-            if (drawDay) clk.day = d;
-            drawTime(drawDay);
-          }
-        }
-        break;
-      case 3:
-        {
-          String s = cmd.param;
-          int str = s.toInt();
-          lastPing = millis();
-          if (!wifi.stt) {
-            Serial3.print("get.wifi;");
-          } else {
-            wifi.setStrength(str);
-            wifi.drawSignal(false);
-          }
-        }
-        break;
-      case 4: //connected
-        {
-          String s = cmd.param;
-          int sp = s.indexOf("::");
-
-          wifi.stt = true;
-          lastPing = millis();
-          wifi.name = s.substring(0, sp);
-          wifi.password = s.substring(sp + 2, s.length());
-          wifi.drawSignal(true);
-        }
-        break;
-      case 5:  // setpoint
-        {
-          String s = cmd.param;
-          int sp = s.indexOf(':');
-          String pt = s.substring(0, sp);
-          String svalue = s.substring(sp + 1, s.length());
-          float value = svalue.toFloat();
-          if (pt == "t") {
-            temperatureSP = value;
-          } else if (pt == "h") {
-            humiditySP = value;
-          } else {
-            light = value == 0 ? false : true;
-            if (screen.current() == MAIN) {
-              int xt = 200, yt = 115;
-              //if (t_light != light) {
-              //light = t_light;
-              tft.fillRect(xt - 3, yt - 40, 70, 50, Backcolor);
-              text(String(light ? "B\u0090t" : "T\u0087t"), xt, yt, 1, WHITE, &test);
-              //}
-            }
-          }
-          Serial2.print(String("setpoint.") + pt + ":" + svalue + ";");
-        }
-        break;
+    if (!wifi.receivedWifiList) {
+      msg.draw("Scanning...", 200, 200);
+    } else {
+      if (!wifi.printedWifiList) break;
     }
 
-    switch (cmd2.read()) {
-      case 0:
-        {
-          String s = cmd2.param;
-          int comma1 = s.indexOf(',');
-          float t_temperature = s.substring(0, comma1).toFloat();
+    for (int i = 0; i < wifi.n; i++) {
+      if (menuWifi.list[i].onclicked([] {
+      screen.add(WIFI_PASSWORD);
+      })) {
+        wifi.name = wifi.ssid[i];
+        break;
+      }
+    }
 
-          int comma2 = s.indexOf(',', comma1 + 1);
-          float t_humidity = s.substring(comma1 + 1, comma2).toFloat();
-          char as = s.charAt(s.length() - 1);
-          bool t_light;
-          if (as == '0') {
-            t_light = false;
+    if (screen.hasJustChanged()) break;
+  }
+}
+
+void screenWifiPassword() {
+  KeyboardTouch keyboard;
+  keyboard.init();
+
+  clr();
+  keyboard.draw();
+  text("Password:", 20, 80, 1, WHITE, &ss13pt);
+  pwInput.draw(150, 50);
+
+  while (true) {
+    checkTouch();
+
+    String key = keyboard.getPressed();
+    if (key != "") {
+      if (key == "ok") {
+        wifi.password = pwInput.value;
+        Serial3.print("connect." + wifi.name + "::" + wifi.password + ";");
+        screen.pop(); screen.pop();
+        screen.add(WIFI_STATUS);
+        break;
+      }
+
+      pwInput.typeIn(key);
+    }
+    if (screen.hasJustChanged()) break;
+  }
+}
+
+void screenWifiStatus() {
+  Btn disconnect("Ng\u0087t k\u0098t n\u00a8i");
+
+  clr();
+  header.lb = "Wifi";
+  header.draw();
+  bool flag = false;
+
+  unsigned long t = millis();
+
+  if (wifi.stt) {
+    text("\u001e\u0083 k\u0098t n\u00a8i:", 50, 140, 1, WHITE, &ss13pt);
+    text(wifi.name, 70, 170, 1, WHITE, &ss13pt);
+    flag = true;
+    disconnect.w = 150;
+    disconnect.draw(100, 270);
+  }
+
+  bool failed =  false;
+
+  while (true) {
+    checkTouch();
+    header.onclicked();
+
+    if (!flag) {
+      if (failed) {
+        msg.draw("Failed.", 200, 200);    // failed to connect
+      } else {
+        if (!wifi.stt) {
+          msg.draw("Connecting...", 200, 200);  // connecting
+        } else {
+          msg.draw("Connected.", 200, 200);      // connected
+          Serial.print("Connected.");
+          break;
+        }
+      }
+    }
+
+    disconnect.onclicked([] {
+      Serial3.print("disconnect;");
+      screen.pop();
+    });
+
+    if (screen.hasJustChanged()) break;
+  }
+}
+
+//-----------------------------------------------------------------Main program--------------------------------------------------------------
+void setup(void) {
+  pinMode(11, INPUT);
+  pinMode(12, INPUT);
+  pinMode(13, INPUT);
+  pinMode(53, OUTPUT);
+  Serial.begin(9600);
+  Serial3.begin(9600);
+  Serial2.begin(9600);
+  Serial3.print("flush;");
+
+  uint16_t identifier = tft.readID();
+  tft.begin(identifier);
+
+  // Init SD_Card
+  pinMode(10, OUTPUT);
+  if (!SD.begin(10 )) {
+    tft.setCursor(0, 0);
+    tft.setTextColor(WHITE);
+    tft.setTextSize(1);
+    tft.println("SD Card Init fail.");
+    Serial.println("SD Card Init fail.");
+  }
+
+  cordycepsBox.init();
+  tIcon.init();
+  hIcon.init();
+  lIcon.init();
+  automode.init();
+  manualmode.init();
+
+  pwInput.w = 250;
+
+  clk.set(0, 0, 1, 1, 1111);
+  tft.setRotation(1);
+  serial();
+  drawTopBar();
+  screen.add(MAIN);
+  screen.hasJustChanged();
+}
+
+void loop(void) {
+  // tap events
+  switch (screen.current()) {
+    case MAIN:
+      screenMain();
+      break;
+    case SETUP:
+      screenSetup();
+      break;
+    case ENVIR:
+      screenEnvirScreen();
+      break;
+    case WIFI_PASSWORD:
+      screenWifiPassword();
+      break;
+    case HT_INPUT:
+      screenHTInputs();
+      break;
+    case WIFI_LIST:
+      screenWifiList();
+      break;
+    case WIFI_STATUS:
+      screenWifiStatus();
+      break;
+  }
+}
+
+void checkTouch() {
+  digitalWrite(13, HIGH);
+  TSPoint p = ts.getPoint();
+  digitalWrite(13, LOW);
+
+  //pinMode(XP, OUTPUT);
+  pinMode(XM, OUTPUT);
+  pinMode(YP, OUTPUT);
+  //pinMode(YM, OUTPUT);
+
+  touched = (p.z > MINPRESSURE);
+  if (touched) {
+    ty = map(p.x, TS_MINX, TS_MAXX, tft.height(), 0);
+    tx = map(p.y, TS_MINY, TS_MAXY, tft.width(), 0);
+  }
+  serial();
+  if (wifi.stt) {
+    if (millis() - lastPing > 2000) {
+      wifi.stt = false;
+      wifi.drawSignal(true);
+      if (screen.current() == WIFI_STATUS) {
+        screen.pop();
+      }
+    }
+  }
+
+  wifi.onclicked([] {
+    screen.add(wifi.stt ? WIFI_STATUS : WIFI_LIST);
+  });
+}
+
+void serial() {
+  int icmd = cmd.read();
+  switch (icmd) {
+    case 0:  // receive wifi list
+      {
+        Serial.println("Receive list of wifi:");
+        String s = cmd.param;
+        wifi.n = 0;
+        if (s == "") break;
+        for (int i = 0; i < 10; i++) {
+          int sp = s.indexOf("\\\\");
+          String s2;
+          if (sp != -1) {
+            s2 = s.substring(0, sp);
           } else {
-            t_light = true;
+            s2 = s;
           }
+          int sp2 = s.indexOf("::");
+          wifi.ssid[i] = s2.substring(0, sp2);
+          wifi.rssi[i] = s2.substring(sp2 + 2, s2.length()).toInt();
+          wifi.n = wifi.n + 1;
+          if (sp != -1) s = s.substring(sp + 2, s.length());
+          else break;
+        }
+
+        wifi.receivedWifiList = true;
+
+        for (int i = 0; i < wifi.n; i++) {
+          Serial.print(wifi.ssid[i]);
+          Serial.println(wifi.rssi[i]);
+        }
+      }
+      break;
+    case 1:
+      {
+        String s = cmd.param;
+
+        if (s == "1") {
+          wifi.stt = true;
+          Serial.println("connected");
+          lastPing = millis();
+        } else {
+          wifi.stt = false;
+          Serial.println("disconnected");
+        }
+        wifi.drawSignal(true);
+      }
+      break;
+    case 2:  // time.<h>:<m>,<w>,<d>/<m>/<y>
+      {
+        String s = cmd.param;
+
+        int sp1 = s.indexOf(':');
+        uint8_t m = s.substring(0, sp1).toInt();
+        int sp2 = s.indexOf(',', sp1 + 1);
+        clk.hour = s.substring(sp1 + 1, sp2).toInt();
+        int sp3 = s.indexOf(',', sp2 + 1);
+        clk.dayOfWeek = s.substring(sp2 + 1, sp3).toInt();
+        int sp4 = s.indexOf('/', sp3 + 1);
+        uint8_t d = s.substring(sp3 + 1, sp4).toInt();
+        int sp5 = s.indexOf('/', sp4 + 1);
+        clk.month = s.substring(sp4 + 1, sp5).toInt();
+        clk.year = s.substring(sp5 + 1, s.length()).toInt();
+        if (clk.minute != m) {
+          clk.minute = m;
+          bool drawDay = (clk.day != d);
+          if (drawDay) clk.day = d;
+          drawTime(drawDay);
+        }
+      }
+      break;
+    case 3:
+      {
+        String s = cmd.param;
+        int str = s.toInt();
+        lastPing = millis();
+        if (!wifi.stt) {
+          Serial3.print("get.wifi;");
+        } else {
+          wifi.setStrength(str);
+          wifi.drawSignal(false);
+        }
+      }
+      break;
+    case 4: //connected
+      {
+        String s = cmd.param;
+        int sp = s.indexOf("::");
+
+        wifi.stt = true;
+        lastPing = millis();
+        wifi.name = s.substring(0, sp);
+        wifi.password = s.substring(sp + 2, s.length());
+        wifi.drawSignal(true);
+      }
+      break;
+    case 5:  // setpoint
+      {
+        String s = cmd.param;
+        int sp = s.indexOf(':');
+        String pt = s.substring(0, sp);
+        String svalue = s.substring(sp + 1, s.length());
+        float value = svalue.toFloat();
+        if (pt == "t") {
+          temperatureSP = value;
+        } else if (pt == "h") {
+          humiditySP = value;
+        } else {
+          light = value == 0 ? false : true;
           if (screen.current() == MAIN) {
             int xt = 200, yt = 115;
-
-            yt += 50;
-            xt -= 36;
-            if (humidity != t_humidity) {
-              humidity = t_humidity;
-              tft.fillRect(xt - 3, yt - 35, 100, 45, Backcolor);
-              text( (!(humidity >= 0 && humidity <= 100) ? ".." : String( round(humidity)) ) + String("%"), xt, yt, 1, WHITE, &test);
-            }
-            yt += 50;
-            xt += 29;
-            if (temperature != t_temperature) {
-              temperature = t_temperature;
-              tft.fillRect(xt - 3, yt - 35, 80, 45, Backcolor);
-              text((!(temperature > -10 && temperature < 60) ? ".." : String( round(temperature)) ) + String("\u001d"), xt, yt, 1, WHITE, &test);
-            }
+            //if (t_light != light) {
+            //light = t_light;
+            tft.fillRect(xt - 3, yt - 40, 70, 50, Backcolor);
+            text(String(light ? "B\u0090t" : "T\u0087t"), xt, yt, 1, WHITE, &test);
+            //}
           }
-
-          Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + "nope" + ';');
         }
-        break;
-      case 1:
-        {
-          String s = cmd2.param;
-          if (s == "1") {
-            prev_outOfWater = false;
-          } else {
-            prev_outOfWater = true;
-          }
-
-          Serial3.print(String("water.") + s + String(";"));
-          Serial.print(String("water.") + s + String(";"));
-        }
-    }
+        Serial2.print(String("setpoint.") + pt + ":" + svalue + ";");
+      }
+      break;
   }
+
+  switch (cmd2.read()) {
+    case 0:
+      {
+        String s = cmd2.param;
+        int comma1 = s.indexOf(',');
+        float t_temperature = s.substring(0, comma1).toFloat();
+
+        int comma2 = s.indexOf(',', comma1 + 1);
+        float t_humidity = s.substring(comma1 + 1, comma2).toFloat();
+        char as = s.charAt(s.length() - 1);
+        bool t_light;
+        if (as == '0') {
+          t_light = false;
+        } else {
+          t_light = true;
+        }
+        if (screen.current() == MAIN) {
+          int xt = 200, yt = 115;
+
+          yt += 50;
+          xt -= 36;
+          if (humidity != t_humidity) {
+            humidity = t_humidity;
+            tft.fillRect(xt - 3, yt - 35, 100, 45, Backcolor);
+            text( (!(humidity >= 0 && humidity <= 100) ? ".." : String( round(humidity)) ) + String("%"), xt, yt, 1, WHITE, &test);
+          }
+          yt += 50;
+          xt += 29;
+          if (temperature != t_temperature) {
+            temperature = t_temperature;
+            tft.fillRect(xt - 3, yt - 35, 80, 45, Backcolor);
+            text((!(temperature > -10 && temperature < 60) ? ".." : String( round(temperature)) ) + String("\u001d"), xt, yt, 1, WHITE, &test);
+          }
+        }
+
+        Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + "nope" + ';');
+      }
+      break;
+    case 1:
+      {
+        String s = cmd2.param;
+        if (s == "1") {
+          prev_outOfWater = false;
+        } else {
+          prev_outOfWater = true;
+        }
+
+        Serial3.print(String("water.") + s + String(";"));
+        Serial.print(String("water.") + s + String(";"));
+      }
+  }
+}

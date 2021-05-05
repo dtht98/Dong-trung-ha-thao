@@ -118,7 +118,7 @@ void sentdata() {
 
   //Print complete date:
   String currentDate = "time." + String(currentMinute) + ":" + String(currentHour) + "," +  String(weekDay) + "," + String(monthDay) + "/" + String(currentMonth) + "/" + String(currentYear) + ";"  ;
-  if (WiFi.isConnected()) Serial.print(String("strength.") + WiFi.RSSI() + ";");
+  if (WiFi.status() == WL_CONNECTED) Serial.print(String("strength.") + WiFi.RSSI() + ";");
   Serial.print(currentDate);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,7 +173,7 @@ void setup() {
 }
 
 void loop() {
-  if (WiFi.isConnected()) {
+  if (WiFi.status() == WL_CONNECTED) {
     if (!wf.CONNECTED) {
       wf.CONNECTED = true;
       Serial.print("connected." + WiFi.SSID() + "::" + WiFi.psk() + ";");
@@ -254,7 +254,7 @@ void loop() {
       {
         String s = cmd.param;
         if (s == "wifi") {
-          if (WiFi.isConnected()) {
+          if (WiFi.status() == WL_CONNECTED) {
             Serial.print("connected." + WiFi.SSID() + "::" + WiFi.psk() + ";");
           }
         }

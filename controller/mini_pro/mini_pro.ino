@@ -2,8 +2,6 @@
 #include <DHT.h>
 #include <DHT_U.h>
 #include <arduino-timer.h>
-#include <Wire.h>
-#include <ds3231.h>
 
 #define nhietDoMin 16
 #define nhietDoMax 22
@@ -96,9 +94,6 @@ void setup() {
 
   readFromEEPROM();
 
-  Wire.begin();
-  DS3231_init(DS3231_CONTROL_INTCN);
-  
   timer.every(1000, SendData);
 }
 

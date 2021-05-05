@@ -1262,7 +1262,8 @@ void screenMain() {     //draw main screen
         light = !light;
         tft.fillRect(200 - 3, 115 - 40, 70, 50, Backcolor);
         text(String(light ? "B\u0090t" : "T\u0087t"), 200, 115, 1, WHITE, &test);
-        Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+        Serial2.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") +";");
+        //Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
       }
       yt += 50;
       if (tx >= xt && ty >= yt && tx < xt + 240 && ty < yt + 92) {
@@ -1376,8 +1377,8 @@ void screenHTInputs() {       //humidity and temperature input
         int xt = 30, yt = 260;
         tft.fillRect(xt, yt, 80, 20, Backcolor);
         text("\u001e\u0083 l\u00b8u!", xt, yt, 1, GREEN, &ss10pt);
-        Serial2.print(String("setpoint.") + t + "," + h + ',' + light ? "1" : "0" +";");
-        Serial.print(String("setpoint.") + t + "," + h + ',' + light ? "1" : "0" +";");
+        Serial2.print(String("setpoint.") + t + "," + String(h) + String(',') + String(light ? "1" : "0") +";");
+        Serial.print(String("setpoint.") + t + "," + String(h) + String(',') + String(light ? "1" : "0") +";");
       }
     });
     if (screen.hasJustChanged()) break;
@@ -1699,6 +1700,7 @@ void serial() {
     case 5:  // setpoint
       {
         String s = cmd.param;
+        Serial.print("Receive setpoint: " + s);
         int sp = s.indexOf(':');
         String pt = s.substring(0, sp);
         String svalue = s.substring(sp + 1, s.length());
@@ -1715,10 +1717,11 @@ void serial() {
             //light = t_light;
             tft.fillRect(xt - 3, yt - 40, 70, 50, Backcolor);
             text(String(light ? "B\u0090t" : "T\u0087t"), xt, yt, 1, WHITE, &test);
+            
             //}
           }
         }
-        Serial2.print(String("setpoint.") + pt + ":" + svalue + ";");
+        Serial2.print(String("setpoint.") + pt + ":" + svalue + String(light ? "1" : "0" ) +  ";");
         Serial.print(String("setpoint.") + pt + ":" + svalue + ";");
       }
       break;
@@ -1733,13 +1736,16 @@ void serial() {
 
         int comma2 = s.indexOf(',', comma1 + 1);
         float t_humidity = s.substring(comma1 + 1, comma2).toFloat();
-        char as = s.charAt(s.length() - 1);
-        bool t_light;
-        if (as == '0') {
-          t_light = false;
-        } else {
-          t_light = true;
-        }
+
+        int comma3 = s.indexOf(',', comma2 + 1);
+        bool t_light = s.substring(comma2 + 1, comma3) == "1"? true: false;
+
+        int comma4 = s.indexOf(',', comma3 + 1);
+        temperatureSP = s.substring(comma3 + 1, comma4).toFloat();
+
+        int comma5 = s.indexOf(',', comma4 + 1);
+        humiditySP = s.substring(comma4 + 1, comma5).toFloat();
+        
         if (screen.current() == MAIN) {
           int xt = 200, yt = 115;
 
@@ -1773,7 +1779,7 @@ void serial() {
         }
 
         Serial3.print(String("water.") + s + String(";"));
-        Serial.print(String("water.") + s + String(";"));
+
       }
   }
 }

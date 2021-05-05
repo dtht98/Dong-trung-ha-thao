@@ -101,8 +101,17 @@ void loop() {
   //  kiemTraSuCo();
   timer.tick();
   nhietDo_doAm();
-  SS_water ();
+  SS_water();
+  anhSang();
   serial();
+}
+
+void anhSang() {
+  if (sang) {
+    on(chieuSang);
+  } else {
+    off(chieuSang);
+  }
 }
 
 void nhietDo_doAm() {
@@ -156,7 +165,6 @@ void SS_water () {
   else {
     outOfWater = false;
     digitalWrite(coiBaoNuoc, LOW);
-
   }
 }
 

@@ -172,7 +172,7 @@ void serial() {                //  truyen thong
     case 0: {  //setpoint
         String s = cmd.param;
         int sp1 = s.indexOf(',');
-        String tsp = s.substring(0, sp);  //temperature
+        String tsp = s.substring(0, sp1);  //temperature
         int sp2 = s.indexOf(',', sp1 + 1);
         String hsp = s.substring(sp1 + 1, sp2); //humidity
         char lsp = s.charAt(s.length() - 1);

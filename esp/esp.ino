@@ -111,24 +111,7 @@ void sentdata() {
   String weekDay = weekDays[timeClient.getDay()];
 
   //Get a time structure
-  struct tm *ptm = gmtime ((time_t *)&epochTime);
-  int monthDay = ptm->tm_mday;
-  int currentMonth = ptm->tm_mon + 1;
-  int currentYear = ptm->tm_year + 1900;
-
-  //Print complete date:
-  String currentDate = "time." + String(currentMinute) + ":" + String(currentHour) + "," +  String(weekDay) + "," + String(monthDay) + "/" + String(currentMonth) + "/" + String(currentYear) + ";"  ;
-  if (WiFi.status() == WL_CONNECTED) Serial.print(String("strength.") + WiFi.RSSI() + ";");
-  Serial.print(currentDate);
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////DOC TU APP BLYNK XUONG////////////////////////////////////////////////////////////////////////
-
-BlynkTimer timer;
-BLYNK_WRITE(V3) {   //Cai dat gia tri Nhiet do//
-  int pinValue = param.asInt();
-  Serial.print(String("setpoint.") + String("t:") +  pinValue + String(";"));
+  struct tm *ptm = gmtime ((time_t *)&epochTime); setpoint.") + String("t:") +  pinValue + String(";"));
 }
 BLYNK_WRITE(V4) {     //Cai dat gia tri Do am//
   int pinValue = param.asInt();

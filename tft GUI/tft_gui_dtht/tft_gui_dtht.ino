@@ -1154,7 +1154,6 @@ bool hasHeader(uint8_t scr) {
 }
 
 void drawTime(bool drawDay) {
-  Serial.println("Time event");
   tft.fillRect(9, 5, 64, 28, topBarBackground);
   text(clk.getTimeString(), 10, 8, 2); // top bar time
   if (screen.current() == MAIN) {
@@ -1262,7 +1261,8 @@ void screenMain() {     //draw main screen
         light = !light;
         tft.fillRect(200 - 3, 115 - 40, 70, 50, Backcolor);
         text(String(light ? "B\u0090t" : "T\u0087t"), 200, 115, 1, WHITE, &test);
-        Serial2.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") +";");
+        Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+        Serial2.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
         //Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
       }
       yt += 50;
@@ -1281,6 +1281,7 @@ void screenSetup() {     //setup screen
   Menu menuSetup(2);
   menuSetup.list[1].lb = F("C\u0080i \u001f\u008at m\u0084ng");
   menuSetup.list[0].lb = F("Ch\u009enh th\u00a6ng s\u00a8 m\u00a6i tr\u00b8\u00adng");
+    menuSetup.list[2].lb = F("C\u0080i \u001f\u008at m\u0084ng");
 
   clr();
   header.lb = "C\u001cI \u001e\u001dT";
@@ -1323,7 +1324,7 @@ void screenEnvirScreen() {  // environment parameter setup
     menuEnvir.list[0].onclicked([] {
       light = !light;
       Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
-      Serial.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+      Serial.println(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
     });
     if (prev_light != light) {
       prev_light = light;
@@ -1377,10 +1378,13 @@ void screenHTInputs() {       //humidity and temperature input
         int xt = 30, yt = 260;
         tft.fillRect(xt, yt, 80, 20, Backcolor);
         text("\u001e\u0083 l\u00b8u!", xt, yt, 1, GREEN, &ss10pt);
-        Serial2.print(String("setpoint.") + t + "," + String(h) + String(',') + String(light ? "1" : "0") +";");
-        Serial.print(String("setpoint.") + t + "," + String(h) + String(',') + String(light ? "1" : "0") +";");
+        Serial2.print(String("setpoint.") + t + "," + String(h) + String(',') + String(light ? "1" : "0") + ";");
+        Serial.println(String("setpoint.") + t + "," + String(h) + String(',') + String(light ? "1" : "0") + ";");
       }
     });
+    if (tInput.value.toFloat() != temperatureSP) tInput.value = trimFloat(temperatureSP, 2);
+    if (hInput.value.toFloat() != humiditySP) hInput.value = trimFloat(humiditySP, 2);
+
     if (screen.hasJustChanged()) break;
   }
 }
@@ -1486,7 +1490,7 @@ void screenWifiStatus() {
           msg.draw("Connecting...", 200, 200);  // connecting
         } else {
           msg.draw("Connected.", 200, 200);      // connected
-          Serial.print("Connected.");
+          Serial.println("WiFi connected.");
           break;
         }
       }
@@ -1700,7 +1704,7 @@ void serial() {
     case 5:  // setpoint
       {
         String s = cmd.param;
-        Serial.print("Receive setpoint: " + s);
+        Serial.println("Receive setpoint: " + s);
         int sp = s.indexOf(':');
         String pt = s.substring(0, sp);
         String svalue = s.substring(sp + 1, s.length());
@@ -1717,12 +1721,13 @@ void serial() {
             //light = t_light;
             tft.fillRect(xt - 3, yt - 40, 70, 50, Backcolor);
             text(String(light ? "B\u0090t" : "T\u0087t"), xt, yt, 1, WHITE, &test);
-            
             //}
           }
         }
+
+
         Serial2.print(String("setpoint.") + pt + ":" + svalue + String(light ? "1" : "0" ) +  ";");
-        Serial.print(String("setpoint.") + pt + ":" + svalue + ";");
+        Serial.println(String("setpoint.") + pt + ":" + svalue + ";");
       }
       break;
   }
@@ -1738,14 +1743,14 @@ void serial() {
         float t_humidity = s.substring(comma1 + 1, comma2).toFloat();
 
         int comma3 = s.indexOf(',', comma2 + 1);
-        bool t_light = s.substring(comma2 + 1, comma3) == "1"? true: false;
+        bool t_light = s.substring(comma2 + 1, comma3) == "1" ? true : false;
 
         int comma4 = s.indexOf(',', comma3 + 1);
         temperatureSP = s.substring(comma3 + 1, comma4).toFloat();
 
         int comma5 = s.indexOf(',', comma4 + 1);
         humiditySP = s.substring(comma4 + 1, comma5).toFloat();
-        
+
         if (screen.current() == MAIN) {
           int xt = 200, yt = 115;
 

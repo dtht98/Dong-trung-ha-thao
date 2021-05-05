@@ -1382,9 +1382,6 @@ void screenHTInputs() {       //humidity and temperature input
         Serial.println(String("setpoint.") + t + "," + String(h) + String(',') + String(light ? "1" : "0") + ";");
       }
     });
-    if (tInput.value.toFloat() != temperatureSP) tInput.value = trimFloat(temperatureSP, 2);
-    if (hInput.value.toFloat() != humiditySP) hInput.value = trimFloat(humiditySP, 2);
-
     if (screen.hasJustChanged()) break;
   }
 }

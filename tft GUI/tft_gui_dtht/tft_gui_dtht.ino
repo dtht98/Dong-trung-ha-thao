@@ -1,4 +1,3 @@
-#123131313133213615
 #include <MCUFRIEND_kbv.h>
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <C:\font\FontConvert\roboto24pt.h>
@@ -1632,8 +1631,10 @@ class timerRTC {
 
 class timerRTC_arr {
   public:
+    int size = 8;
     timerRTC t0, t1, t2, t3, t4, t5, t6, t7;
-    bool state[8] = {0,0,0,0,0,0,0,0};
+    bool state[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
     void set(int i, int h, int m, void (*f)()) {
       switch (i) {
         case 0: {
@@ -1641,17 +1642,21 @@ class timerRTC_arr {
             t0.minute = m;
             t0.exec = f;
           }
-          case 0: {
-            t0.hour = h;
-            t0.minute = m;
-            t0.exec = f;
-          }
+          break;
+        
 
       }
     }
     void tick() {
-      for (int i = 0; i <= current; i++) {
-        
+      for (int i = 0; i <= size; i++) {
+        if (state[i]) {
+          switch (i) {
+            case 0: {
+            t0.tick();
+          }
+          break;
+          }
+        }
       }
     }
 }

@@ -1330,7 +1330,7 @@ void screenSetup() {     //setup screen
 void screenEnvirScreen() {  // environment parameter setup
   Menu menuEnvir(2);
 
-  menuEnvir.list[0].lb = String("\u001e\u0091n chi\u0098u s\u0081ng"));
+  menuEnvir.list[0].lb = "\u001e\u0091n chi\u0098u s\u0081ng";
   menuEnvir.list[1].lb = "Nhi\u009bt \u001f\u00ab, \u001e\u00ab \u008em";
 
   clr();
@@ -1629,17 +1629,17 @@ class timerRTC {
     }
 };
 
-class timerRTC_arr {
+class {
   public:
     int size = 8;
     timerRTC t0, t1, t2, t3, t4, t5, t6, t7;
     bool state[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
     void set(int i, int h, int m, void (*f)()) {
+      state[i] = 1;
       switch (i) {
         case 0: {
-            t0.hour = h;
-            t0.minute = m;
+            t0.set(h, m);
             t0.exec = f;
           }
           break;
@@ -1659,7 +1659,8 @@ class timerRTC_arr {
         }
       }
     }
-}
+    
+} timerArr;
 
 void screenLightSetup() {
   Menu menuLight(2);

@@ -1649,7 +1649,9 @@ class timerRTC_arr {
       }
     }
     void tick() {
-      for (int i = 0; i <= current;
+      for (int i = 0; i <= current; i++) {
+        
+      }
     }
 }
 

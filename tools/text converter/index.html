@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <input id='input'></input>
+    <button id='ok' onclick="ok()">ok</button>
+    <script>
+        const syms = ['À', 'Ặ', 'Đ', 'đ', 'ờ', 'à', 'á', 'ả', 'ã', 'ạ', 'ă', 'ằ', 'ắ', 'ẳ', 'ẵ', 'ặ', 'â', 'ầ', 'ấ', 'ẩ', 'ẫ', 'ậ', 'è', 'é', 'ẻ', 'ẽ', 'ẹ', 'ê', 'ề', 'ế', 'ể',
+            'ễ', 'ệ', 'ì', 'í', 'ỉ', 'ĩ', 'ò', 'ó', 'ỏ', 'õ', 'ọ', 'ô', 'ồ', 'ố', 'ổ', 'ỗ', 'ộ', 'ơ', 'ờ', 'ớ', 'ở', '°', 'ợ', 'ù', 'ú',
+            'ủ', 'ũ', 'ụ', 'ư', 'ừ', 'ứ', 'ử', 'ữ', 'ự', 'ỳ', 'ý', 'À', 'Á', 'Ã', 'Ă', 'ị', 'ỷ', 'È', 'É',
+            'Ê', 'ỹ', 'Ì', 'Í', 'ỵ', 'ỡ', 'Đ', 'Â', 'Ò', 'Ó', 'Ô', 'Ặ', '?', '!']
+
+        const code = ['\\u001c', '\\u001d', '\\u00e', '\\u00f', '\\u002d', '\\u0080', '\\u0081', '\\u0082', '\\u0083', '\\u0084', '\\u0085',
+            '\\u0086', '\\u0087', '\\u0088', '\\u0089', '\\u008a', '\\u008b', '\\u008c', '\\u008d', '\\u008e', '\\u008f', '\\u0090', '\\u0091', '\\u0092', '\\u0093'
+            , '\\u0094', '\\u0095', '\\u0096', '\\u0097', '\\u0098', '\\u0099', '\\u009a', '\\u009b', '\\u009c',
+            '\\u009d', '\\u009e', '\\u009f', '\\u00a1', '\\u00a2', '\\u00a3', '\\u00a4', '\\u00a5', '\\u00a6', '\\u00a7', '\\u00a8', '\\u00a9',
+            '\\u00aa', '\\u00ab', '\\u00ac', '\\u00ad', '\\u00ae', '\\u00af', '\\u00b0', '\\u00b1', '\\u00b2', '\\u00b3'
+            , '\\u00b5', '\\u00b6', '\\u00b7', '\\u00b8', '\\u00b9', '\\u00ba', '\\u00bb', '\\u00bc', '\\u00bd', '\\u00be'
+            , '\\u00bf', '\\u00c0', '\\u00c1', '\\u00c3', '\\u00c4', '\\u00c6', '\\u00c7'
+            , '\\u00c8', '\\u00c9', '\\u00ca', '\\u00cb', '\\u00cc', '\\u00cd', '\\u00ce'
+            , '\\u00cf', '\\u00d0', '\\u00d1', '\\u00d2', '\\u00d3', '\\u00d4', '\\u00d5', '\\u003f'
+            , '\\u0021']
+
+        function ok() {
+                var s = $('#input').val();
+                var result = "";
+                var arr = s.split('');
+                arr.forEach(c => {
+                    var k = syms.indexOf(c)
+                    if (k != -1) {
+                        result += code[k];
+                    } else {
+                        result += c
+                    }
+                });
+                var s = $('#input').val(result);
+            }
+
+    </script>
+</body>
+
+</html>

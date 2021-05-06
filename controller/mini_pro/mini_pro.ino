@@ -34,10 +34,10 @@ float nhietDo = 0.0, doAm = 0.0, nhietDo_dat = 19.0, doAm_dat = 77.5;
 
 boolean sang = true, outOfWater = false;
 
-#define N_COMMAND 1
+#define N_COMMAND 2
 class Command {
   public:
-    const String cmd[N_COMMAND] = {"setpoint"};
+    const String cmd[N_COMMAND] = {"setpoint", "get"};
     const uint8_t ncmd = N_COMMAND;
     bool done = false;
     String buffer = "";
@@ -93,8 +93,6 @@ void setup() {
   off(taoSuong);
 
   readFromEEPROM();
-
-  timer.every(1000, SendData);
 }
 
 void loop() {
@@ -168,7 +166,7 @@ void SS_water () {
   }
 }
 
-bool SendData(void*) { //  <info>.<t,h,as>;
+bool SendData() { //  <info>.<t,h,as>;
   Serial.print(String("info.") + String(nhietDo) + String(",") + String(doAm) + String(",") + (sang ? "1" : "0") + ',' + String(nhietDo_dat) + ',' + String(doAm_dat) + String(";"));
   Serial.print(String("water.") + (outOfWater ? "0" : "1") + String(";"));
   //   Serial.print(String("water.") + (outOfWater ? "0" : "1") + String(";"));
@@ -189,6 +187,10 @@ void serial() {                //  truyen thong
         doAm_dat = hsp.toFloat();
         sang = lsp == '1'? true: false;
         writeToEEPROM();
+      }
+      break;
+      case 1: {  //get
+        SendData();
       }
       break;
   }

@@ -27,10 +27,10 @@ unsigned long last_notification = 0;
 
 String date;
 
-#define N_COMMAND 6
+#define N_COMMAND 7
 class Command {
   public:
-    const String cmd[N_COMMAND] = {"scan", "connect", "disconnect", "info", "get", "water"};
+    const String cmd[N_COMMAND] = {"scan", "connect", "disconnect", "info", "get", "water", "setpointReverse"};
     const uint8_t ncmd = N_COMMAND;
     bool done = false;
     String buffer = "";
@@ -111,7 +111,24 @@ void sentdata() {
   String weekDay = weekDays[timeClient.getDay()];
 
   //Get a time structure
-  struct tm *ptm = gmtime ((time_t *)&epochTime); setpoint.") + String("t:") +  pinValue + String(";"));
+  struct tm *ptm = gmtime ((time_t *)&epochTime);
+  int monthDay = ptm->tm_mday;
+  int currentMonth = ptm->tm_mon + 1;
+  int currentYear = ptm->tm_year + 1900;
+
+  //Print complete date:
+  String currentDate = "time." + String(currentMinute) + ":" + String(currentHour) + "," +  String(weekDay) + "," + String(monthDay) + "/" + String(currentMonth) + "/" + String(currentYear) + ";"  ;
+  if (WiFi.status() == WL_CONNECTED) Serial.print(String("strength.") + WiFi.RSSI() + ";");
+  Serial.print(currentDate);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////DOC TU APP BLYNK XUONG////////////////////////////////////////////////////////////////////////
+
+BlynkTimer timer;
+BLYNK_WRITE(V3) {   //Cai dat gia tri Nhiet do//
+  int pinValue = param.asInt();
+  Serial.print(String("setpoint.") + String("t:") +  pinValue + String(";"));
 }
 BLYNK_WRITE(V4) {     //Cai dat gia tri Do am//
   int pinValue = param.asInt();
@@ -125,17 +142,11 @@ BLYNK_WRITE(V5) {      // Cai dat gia tri Anh sang//
   Serial.print(String("setpoint.") +  String("as:") + (light ? "1" : "0") + String(";"));
 }
 
-//VIET LEN APP BLYNK//////
-void myTimerEvent()
-{
-  //  Blynk.virtualWrite(V0, temperature);
-  //  Blynk.virtualWrite(V1, humidity);
-  //  Blynk.virtualWrite(V5, light);
-  //  Blynk.virtualWrite(V6, waterState);
-}
+
 void setup() {
   Serial.begin(9600);
   Serial.setTimeout(100);
+  pinMode(LED_BUILTIN, OUTPUT);
   Serial.print("flush;");
   // ket noi wifi
   ticker1.attach(1, sentdata);  // 1s thực hiện void sentdata
@@ -152,7 +163,7 @@ void setup() {
   //  while (WiFi.status() != WL_CONNECTED) {
   //    if (millis() - t1 > 3000) break;
   //  }
-  timer.setInterval(1000L, myTimerEvent);
+
 }
 
 void loop() {
@@ -205,7 +216,6 @@ void loop() {
         ssid.toCharArray(c_ssid, ssid.length());
         pw.toCharArray(c_pw, pw.length());
         Blynk.begin(auth, c_ssid, c_pw);
-        timer.setInterval(1000L, myTimerEvent); //1s gui du lieu 1 lan len Blynk
         timeClient.begin();// khởi động truy cập sever thời gian
         Serial.print("status.1;");
         wf.CONNECTED = true;
@@ -229,6 +239,7 @@ void loop() {
         if (ls != "nope") light = ls == "0" ? false : true;
         Blynk.virtualWrite(V0, temperature);
         Blynk.virtualWrite(V1, humidity);
+        
         Blynk.virtualWrite(V5, light);
         Serial.print("da nhan;");
       }
@@ -259,6 +270,16 @@ void loop() {
           }
         }
       }
+      break;
+      case 6:  //setpoint reverse
+      {
+        String s = cmd.param;
+        int sp = s.indexOf(",");
+        Blynk.virtualWrite(V3, s.substring(0, sp).toFloat());
+        Blynk.virtualWrite(V4, s.substring(sp+1, s.length()).toFloat());
+        digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+      }
+      break;
   }
 
 }

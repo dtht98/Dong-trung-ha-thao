@@ -1262,6 +1262,7 @@ void screenMain() {     //draw main screen
         tft.fillRect(200 - 3, 115 - 40, 70, 50, Backcolor);
         text(String(light ? "B\u0090t" : "T\u0087t"), 200, 115, 1, WHITE, &test);
         Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+        
         Serial2.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
         //Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
       }
@@ -1382,9 +1383,6 @@ void screenHTInputs() {       //humidity and temperature input
         Serial.println(String("setpoint.") + t + "," + String(h) + String(',') + String(light ? "1" : "0") + ";");
       }
     });
-    if (tInput.value.toFloat() != temperatureSP) tInput.value = trimFloat(temperatureSP, 2);
-    if (hInput.value.toFloat() != humiditySP) hInput.value = trimFloat(humiditySP, 2);
-
     if (screen.hasJustChanged()) break;
   }
 }
@@ -1771,6 +1769,7 @@ void serial() {
         }
 
         Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + "nope" + ';');
+        Serial3.print(String("setpointReverse.") + String(temperatureSP) + String(',') + String(humiditySP) + ';');
         //Serial.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + "nope" + ';');
       }
       break;

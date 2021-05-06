@@ -1643,7 +1643,48 @@ class timerRTC_arr {
             t0.exec = f;
           }
           break;
-        
+        case 1: {
+            t1.hour = h;
+            t1.minute = m;
+            t1.exec = f;
+          }
+          break;
+        case 2: {
+            t2.hour = h;
+            t2.minute = m;
+            t2.exec = f;
+          }
+          break;
+        case 3: {
+            t3.hour = h;
+            t3.minute = m;
+            t3.exec = f;
+          }
+          break;
+        case 4: {
+            t4.hour = h;
+            t4.minute = m;
+            t4.exec = f;
+          }
+          break;
+        case 5: {
+            t5.hour = h;
+            t5.minute = m;
+            t5.exec = f;
+          }
+          break;
+        case 6: {
+            t6.hour = h;
+            t6.minute = m;
+            t6.exec = f;
+          }
+          break;
+        case 7: {
+            t7.hour = h;
+            t7.minute = m;
+            t7.exec = f;
+          }
+          break;
 
       }
     }
@@ -1652,9 +1693,9 @@ class timerRTC_arr {
         if (state[i]) {
           switch (i) {
             case 0: {
-            t0.tick();
-          }
-          break;
+                t0.tick();
+              }
+              break;
           }
         }
       }

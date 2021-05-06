@@ -1696,6 +1696,34 @@ class timerRTC_arr {
                 t0.tick();
               }
               break;
+            case 1: {
+                t1.tick();
+              }
+              break;
+            case 2: {
+                t2.tick();
+              }
+              break;
+            case 3: {
+                t3.tick();
+              }
+              break;
+            case 4: {
+                t4.tick();
+              }
+              break;
+            case 5: {
+                t5.tick();
+              }
+              break;
+            case 6: {
+                t6.tick();
+              }
+              break;
+            case 7: {
+                t7.tick();
+              }
+              break;
           }
         }
       }

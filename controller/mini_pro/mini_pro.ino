@@ -80,6 +80,16 @@ DHT dht(DHTPIN, DHTTYPE);
 auto timer = timer_create_default();
 uintptr_t task;
 
+
+String b2s(bool b) {
+  return b ? String('1') : String('0');
+}
+
+String status(int pin) {
+  return b2s(digitalRead(pin));
+}
+
+
 void setup() {
   Serial.begin(9600);
   Serial.print("flush;");
@@ -88,6 +98,7 @@ void setup() {
   pinMode(taoSuong, OUTPUT);
   pinMode(coiBaoNuoc, OUTPUT);
   pinMode(chieuSang, OUTPUT);
+  pinMode(lamNong, OUTPUT);
 
   off(lamLanh);
   off(taoSuong);
@@ -182,28 +193,20 @@ void serial() {                //  truyen thong
         int sp2 = s.indexOf(',', sp1 + 1);
         String hsp = s.substring(sp1 + 1, sp2); //humidity
         char lsp = s.charAt(s.length() - 1);
-        
+
         nhietDo_dat = tsp.toFloat();
         doAm_dat = hsp.toFloat();
-        sang = lsp == '1'? true: false;
+        sang = lsp == '1' ? true : false;
         writeToEEPROM();
       }
       break;
-      case 1: {  //get
+    case 1: {  //get
         SendData();
       }
       break;
-      case 2: {  //get device status
-        Serial.print(String("deviceStatus."+ status(chieuSang) + status(lamLanh) + status(taoSuong) + status(lamNong) + ";");
+    case 2: {  //get device status
+        Serial.print(String("deviceStatus.") + status(chieuSang) + status(lamLanh) + status(taoSuong) + status(lamNong) + ";");
       }
       break;
   }
-}
-
-String b2s(bool b) {
-  return b? String('1'): String('0');
-}
-
-String status(int pin) {
-  return b2s(digitalRead(pin));
 }

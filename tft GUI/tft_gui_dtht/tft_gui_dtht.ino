@@ -17,6 +17,12 @@
 #include <SD.h>
 #include <SPI.h>
 
+#include <EEPROM.h>
+#define ADDR_TIMER 100
+
+#define upto(n) for (int i = 0; i < n; i++)
+#define fromto(m,n) for (int i = m; i <= n; i++)
+
 #define LCD_CS A3 // Chip Select goes to Analog 3
 #define LCD_CD A2 // Command/Data goes to Analog 2
 #define LCD_WR A1 // LCD Write goes to Analog 1
@@ -70,7 +76,9 @@
 #define WIFI_LIST 5
 #define WIFI_STATUS 6
 #define DEVICE_STATUS 7
-#define SCREEN__LIGHT_SETUP
+#define SCREEN__LIGHT_SETUP 8
+#define SCREEN__TIMER_LIST 9
+#define SCREEN__TIMER_SET 10
 
 #define AUTO 0
 #define MANUAL 1
@@ -108,7 +116,8 @@ class Screen {
     }
     void pop() {
       prev = history[i];
-      i--;
+      if (i > 0) i--;
+      else history[i] = MAIN;
       //changeScreen(history[i]);
       Changed = true;
     }
@@ -998,6 +1007,7 @@ class Menu {
         bool last = false;
         Color border = {156, 198, 255}, selectedColor{10, 82, 102};
         bool defaultFont = false;
+        bool fontSize = 16;
 
         void draw(bool eraseBackground) {
           y = ystart + id * h;
@@ -1094,7 +1104,7 @@ class Header {
 GradRectH gr;
 GradCircle grc;
 Image cordycepsBox("box.bmp"), tIcon("tprt.bmp"), hIcon("Humidity.bmp"), lIcon("light.bmp"), automode("auto.bmp", 100), manualmode("manual.bmp", 100) ;
-Input tInput, hInput, pwInput;
+Input tInput, hInput, pwInput, hourInput, minuteInput;
 Btn inputOk("Ok");
 
 Header header("");
@@ -1167,7 +1177,7 @@ bool ignoreIconHeader() {
 }
 
 bool hasHeader(uint8_t scr) {
-  return (scr == SETUP || scr == ENVIR || scr == HT_INPUT || scr == WIFI_LIST || scr == DEVICE_STATUS);
+  return (scr == SCREEN__TIMER_SET || scr == SCREEN__TIMER_LIST || scr == SCREEN__LIGHT_SETUP || scr == SETUP || scr == ENVIR || scr == HT_INPUT || scr == WIFI_LIST || scr == DEVICE_STATUS);
 }
 
 void drawTime(bool drawDay) {
@@ -1339,17 +1349,12 @@ void screenEnvirScreen() {  // environment parameter setup
   menuEnvir.draw();
 
   while (true) {
-  checkTouch();
+    checkTouch();
     header.onclicked();
     menuEnvir.list[0].onclicked([] {
       screen.add(SCREEN__LIGHT_SETUP);
     });
-    if (prev_light != light) {
-      prev_light = light;
-      menuEnvir.list[0].lb = String("\u001e\u0091n chi\u0098u s\u0081ng: ") + (light ? String("B\u0090t") : String("T\u0087t"));
-      menuEnvir.list[0].draw(true);
-      Serial2.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
-    }
+
     menuEnvir.list[1].onclicked([] {screen.add(HT_INPUT);});
     if (screen.hasJustChanged()) break;
   }
@@ -1605,156 +1610,275 @@ void screenDeviceStatus() {
   }
 */
 
-class timerRTC {
+class TimerRTC {
   public:
+    bool enabled = true;
+    bool sw = true;
     int hour, minute;
     bool flag = true;
-    void (*exec)();
+    void (*exec)() = [] {};
     set(int h, int m) {
       this->hour = h;
       this->minute = m;
     }
-    void event(void (*f)()) {
-      this->exec = f;
+
+    void enable() {
+      this->enabled = true;
+    }
+    void disable() {
+      this->enabled = false;
     }
     void tick() {
+      if (!enabled) return;
       if (clk.hour == this->hour && clk.minute == this->minute) {
         if (flag) {
-          (*exec)();
+          if (screen.current() == MAIN) {
+            if (light != sw) {
+              int xt = 200, yt = 115;
+              light = sw;
+              tft.fillRect(xt - 3, yt - 40, 70, 50, Backcolor);
+              text(String(light ? "B\u0090t" : "T\u0087t"), xt, yt, 1, WHITE, &test);
+            }
+          }
+          //Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+          Serial.println(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+          Serial2.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
+
           flag = false;
         }
       } else {
         flag = true;
       }
     }
+    String getTimeString() {
+      return form(hour) + String(":") + form(minute);
+    }
+
+    String form(int x) {
+      if (x < 10) {
+        return String("0") + String(x);
+      } else {
+        return String(x);
+      }
+    }
 };
 
 class {
   public:
-    int size = 8;
-    timerRTC t0, t1, t2, t3, t4, t5, t6, t7;
-    bool state[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    int maxSize = 8;
+    int size = 0;
+    TimerRTC timer[8];
 
-    void set(int i, int h, int m, void (*f)()) {
-      state[i] = 1;
-      switch (i) {
-        case 0: {
-            t0.set(h, m);
-            t0.exec = f;
-          }
-          break;
-        case 1: {
-            t1.hour = h;
-            t1.minute = m;
-            t1.exec = f;
-          }
-          break;
-        case 2: {
-            t2.hour = h;
-            t2.minute = m;
-            t2.exec = f;
-          }
-          break;
-        case 3: {
-            t3.hour = h;
-            t3.minute = m;
-            t3.exec = f;
-          }
-          break;
-        case 4: {
-            t4.hour = h;
-            t4.minute = m;
-            t4.exec = f;
-          }
-          break;
-        case 5: {
-            t5.hour = h;
-            t5.minute = m;
-            t5.exec = f;
-          }
-          break;
-        case 6: {
-            t6.hour = h;
-            t6.minute = m;
-            t6.exec = f;
-          }
-          break;
-        case 7: {
-            t7.hour = h;
-            t7.minute = m;
-            t7.exec = f;
-          }
-          break;
-
-      }
+    void add(int h, int m, bool sw) {
+      timer[size].set(h, m);
+      timer[size].sw = sw;
+      size++;
     }
+    void remove(int k) {
+      for (int i = k; i < size - 1; i++) {
+        timer[i] = timer[i + 1];
+      }
+      size--;
+    }
+    void change(int k, int h, int m, bool sw) {
+      timer[k].set(h, m);
+      timer[k].sw = sw;
+    }
+
     void tick() {
-      for (int i = 0; i <= size; i++) {
-        if (state[i]) {
-          switch (i) {
-            case 0: {
-                t0.tick();
-              }
-              break;
-            case 1: {
-                t1.tick();
-              }
-              break;
-            case 2: {
-                t2.tick();
-              }
-              break;
-            case 3: {
-                t3.tick();
-              }
-              break;
-            case 4: {
-                t4.tick();
-              }
-              break;
-            case 5: {
-                t5.tick();
-              }
-              break;
-            case 6: {
-                t6.tick();
-              }
-              break;
-            case 7: {
-                t7.tick();
-              }
-              break;
-          }
-        }
+      for (int i = 0; i < size; i++) {
+        timer[i].tick();
       }
+
     }
-    
 } timerArr;
 
 void screenLightSetup() {
   Menu menuLight(2);
 
-  menuLight.list[0].lb = String("Tr\u0084ng th\u0081i: ") + (light ? String("B\u0090t") : String("T\u0087t"));
-  menuLight.list[1].lb = String("H\u0095n gi\u002d: ") + ;
+  menuLight.list[0].lb = String("Tr\u0084ng th\u0081i hi\u009bn t\u0084i: ") + (light ? String("B\u0090t") : String("T\u0087t"));
+  menuLight.list[1].lb = String("H\u0095n gi\u002d b\u0090t t\u0087t") ;
 
-  clr();
-  header.lb = "M\u00a6i tr\u00b8\u00adng";
-  header.draw();
-  menuEnvir.draw();
   clr();
   header.lb = "\u00c1nh s\u0081ng";
   header.draw();
 
-  while (true) {
+  menuLight.draw();
 
+  while (true) {
     checkTouch();
     header.onclicked();
 
+    menuLight.list[0].onclicked([] {
+      light = !light;
+      Serial2.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
+      //Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+      //Serial.println(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+    });
+    if (prev_light != light) {
+      prev_light = light;
+      menuLight.list[0].lb = String("Tr\u0084ng th\u0081i hi\u009bn t\u0084i: ") + (light ? String("B\u0090t") : String("T\u0087t"));
+      menuLight.list[0].draw(true);
+    }
 
+    menuLight.list[1].onclicked([] {
+      screen.add(SCREEN__TIMER_LIST);
+    });
 
     if (screen.hasJustChanged()) break;
   }
 }
+
+signed int selectedTimer = 0;
+void screenTimerList() {
+  Menu menuTimer(timerArr.size + 1);
+  int count = 0;
+  menuTimer.list[count].lb = "<<them hen gio>>";
+  menuTimer.list[count].defaultFont = true;
+  menuTimer.list[count].h = 24;
+  for (int i = 0; i < timerArr.maxSize; i++) {
+    count ++;
+    menuTimer.list[count].defaultFont = true;
+    menuTimer.list[count].lb = timerArr.timer[i].getTimeString() + String("  => ") + String(timerArr.timer[i].sw ? "Bat chieu sang" : "Tat chieu sang");
+    menuTimer.list[count].h = 24;
+  }
+
+  clr();
+  header.lb = "H\u0095n gi\u002d";
+  header.draw();
+  menuTimer.draw();
+
+  while (true) {
+    checkTouch();
+    header.onclicked();
+    menuTimer.list[0].onclicked([] {
+      if (timerArr.size == 8) return;
+      selectedTimer = timerArr.size;
+      screen.add(SCREEN__TIMER_SET);
+    });
+    for (int i = 0; i < timerArr.size; i++) {
+      selectedTimer = i;
+      menuTimer.list[i + 1].onclicked([] {
+        screen.add(SCREEN__TIMER_SET);
+      });
+    }
+
+    if (screen.hasJustChanged()) break;
+  }
+}
+bool bsw = true;
+bool changeTimerActionState = false;
+void screenTimerSet() {
+  Keypad keypad;
+  Btn del("X\u00a2a h\u0095n gi\u002d n\u0080y"), sw("");
+
+
+  keypad.init(280, 120);
+  clr();
+  header.lb = "Dat gio";
+  header.draw();
+
+  hourInput.w = minuteInput.w = 50;
+  if (selectedTimer != timerArr.size) {
+    hourInput.value = timerArr.timer[selectedTimer].hour;
+    minuteInput.value = timerArr.timer[selectedTimer].minute;
+    bsw = timerArr.timer[selectedTimer].sw;
+  } else {
+    hourInput.value = "";
+    minuteInput.value = "";
+  }
+  int yt = 130, xt = 40;
+  text("Th\u002di \u001fi\u0099m:", 10, yt, 1, WHITE, &ss13pt);
+  yt += 40;
+  hourInput.draw(xt, yt - 25);
+  hourInput.select();
+  minuteInput.deselect();
+  xt += 57;
+  text("gi\u002d", xt, yt, 1, WHITE, &ss13pt);
+
+  xt += 50;
+  minuteInput.draw(xt, yt - 25);
+  xt += 57;
+  text("ph\u00b3t", xt, yt, 1, WHITE, &ss13pt);
+  yt += 60;
+  text("T\u00bd \u001f\u00abng", 10, yt, 1, WHITE, &ss13pt);
+  xt = 115;
+  sw.x = xt - 5;
+  sw.y = yt - 20;
+  sw.w = 100;
+  sw.h = 30;
+  tft.fillRect(xt - 5, yt - 20, 100, 30, WHITE);
+  text(bsw ? "b\u0090t \u001f\u0091n" : "t\u0087t \u001f\u0091n", xt, yt, 1, BLACK, &ss13pt);
+
+  inputOk.w = 60;
+  inputOk.xText = 15;
+  inputOk.draw(20, 280);
+
+  del.w = 160;
+  del.xText = 10;
+  del.draw(90, 280);
+  keypad.draw();
+
+  while (true) {
+    checkTouch();
+    header.onclicked();
+    hourInput.onclicked([] {minuteInput.deselect();});
+    minuteInput.onclicked([] {hourInput.deselect();});
+    String key = keypad.getPressed();
+    if (key != "" && key != ".") {
+      if (hourInput.selected) hourInput.typeIn(key);
+      if (minuteInput.selected) minuteInput.typeIn(key);
+    }
+    inputOk.onclicked([] {
+      if (hourInput.value == "" ||  minuteInput.value == "" ) return;
+      int h = hourInput.value.toInt();
+      int m = minuteInput.value.toInt();
+      if (h > 23) {
+        h = 23;
+        hourInput.value = String(h);
+        hourInput.redraw(true);
+      }
+      if (m > 59) {
+        m = 59;
+        minuteInput.value = String(m);
+        minuteInput.redraw(true);
+      }
+      if (selectedTimer == timerArr.size) {
+        timerArr.add(h, m, bsw);
+      } else {
+        timerArr.change(selectedTimer, h, m, bsw);
+      }
+      Serial.print(String("added") + String(h) + String(m) + String(bsw));
+      EEPROM.write(ADDR_TIMER - 1, 1);
+      EEPROM.put(ADDR_TIMER, timerArr);
+      text("\u001e\u0083 l\u00b8u!", 30, 270, 1, GREEN, &ss10pt);
+
+      screen.pop();
+    });
+    del.onclicked([] {
+      if (selectedTimer != timerArr.size) {
+        timerArr.remove(selectedTimer);
+        EEPROM.write(ADDR_TIMER - 1, 1);
+        EEPROM.put(ADDR_TIMER, timerArr);
+      }
+      screen.pop();
+    });
+    sw.onclicked([] {
+      changeTimerActionState = true;
+    });
+    if (changeTimerActionState) {
+      if (bsw == true) bsw = false;
+      else bsw = true;
+
+      Serial.print(String("timer action toggled") + String(bsw));
+      tft.fillRect(xt - 5, yt - 20, 100, 30, WHITE);
+      text(bsw ? "b\u0090t \u001f\u0091n" : "t\u0087t \u001f\u0091n", xt, yt, 1, BLACK, &ss13pt);
+      changeTimerActionState = false;
+    }
+    if (screen.hasJustChanged()) break;
+  }
+}
+
 
 //-----------------------------------------------------------------Main program--------------------------------------------------------------
 void setup(void) {
@@ -1780,6 +1904,10 @@ void setup(void) {
     Serial.println("SD Card Init fail.");
   }
 
+  if (EEPROM.read(ADDR_TIMER - 1) == 1) {
+    EEPROM.get(ADDR_TIMER, timerArr);
+  }
+
   cordycepsBox.init();
   tIcon.init();
   hIcon.init();
@@ -1793,6 +1921,7 @@ void setup(void) {
   tft.setRotation(1);
   serial();
   drawTopBar();
+  // screen.add(MAIN);
   screen.add(MAIN);
   screen.hasJustChanged();
 
@@ -1829,6 +1958,12 @@ void loop(void) {
     case SCREEN__LIGHT_SETUP:
       screenLightSetup();
       break;
+    case SCREEN__TIMER_LIST:
+      screenTimerList();
+      break;
+    case SCREEN__TIMER_SET:
+      screenTimerSet();
+      break;
   }
 }
 
@@ -1861,6 +1996,8 @@ void checkTouch() {
   wifi.onclicked([] {
     screen.add(wifi.stt ? WIFI_STATUS : WIFI_LIST);
   });
+
+  timerArr.tick();
 }
 
 void serial() {
@@ -2035,7 +2172,15 @@ void serial() {
             tft.fillRect(xt - 3, yt - 35, 80, 45, Backcolor);
             text((!(temperature > -10 && temperature < 60) ? ".." : String( round(temperature)) ) + String("\u001d"), xt, yt, 1, WHITE, &test);
           }
+
+          if (light != t_light) {
+            int xt = 200, yt = 115;
+            light = t_light;
+            tft.fillRect(xt - 3, yt - 40, 70, 50, Backcolor);
+            text(String(light ? "B\u0090t" : "T\u0087t"), xt, yt, 1, WHITE, &test);
+          }
         }
+
 
         Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + "nope" + ';');
         Serial3.print(String("setpointReverse.") + String(temperatureSP) + String(',') + String(humiditySP) + ';');

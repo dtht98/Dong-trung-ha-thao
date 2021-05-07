@@ -34,10 +34,10 @@ float nhietDo = 0.0, doAm = 0.0, nhietDo_dat = 19.0, doAm_dat = 77.5;
 
 boolean sang = true, outOfWater = false;
 
-#define N_COMMAND 2
+#define N_COMMAND 3
 class Command {
   public:
-    const String cmd[N_COMMAND] = {"setpoint", "get"};
+    const String cmd[N_COMMAND] = {"setpoint", "get", "getStatus"};
     const uint8_t ncmd = N_COMMAND;
     bool done = false;
     String buffer = "";
@@ -193,5 +193,17 @@ void serial() {                //  truyen thong
         SendData();
       }
       break;
+      case 2: {  //get device status
+        Serial.print(String("deviceStatus."+ status(chieuSang) + status(lamLanh) + status(taoSuong) + status(lamNong) + ";");
+      }
+      break;
   }
+}
+
+String b2s(bool b) {
+  return b? String('1'): String('0');
+}
+
+String status(int pin) {
+  return b2s(digitalRead(pin));
 }

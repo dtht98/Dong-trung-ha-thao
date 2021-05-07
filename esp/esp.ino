@@ -17,7 +17,8 @@ String months[12] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "1
 
 WidgetLED w(V6);
 //char auth[] = "qJGUs1-T3mqFFpvshJwGSXHvXdGrRTQ5";
-char auth[] = "vg7WD2YadZ8PkaV3wBAYHFVlwdKzRchk";
+//char auth[] = "vg7WD2YadZ8PkaV3wBAYHFVlwdKzRchk";
+char auth[] = "ZVbQ3osSdmcX4mKdlavYhkrHUj1Hq8ZX";
 
 String myblynk, tam, temperature = "11", humidity = "34", j;
 String waterState = "1";
@@ -281,9 +282,7 @@ void loop() {
       }
       break;
   }
-
 }
-
 
 
 

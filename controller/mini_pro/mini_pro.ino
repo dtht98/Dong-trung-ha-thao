@@ -80,7 +80,6 @@ DHT dht(DHTPIN, DHTTYPE);
 auto timer = timer_create_default();
 uintptr_t task;
 
-
 String b2s(bool b) {
   return b ? String('1') : String('0');
 }
@@ -124,8 +123,8 @@ void anhSang() {
 }
 
 void nhietDo_doAm() {
-  nhietDo = 10;//dht.readTemperature();
-  doAm = 40;//dht.readHumidity();
+  nhietDo = dht.readTemperature();
+  doAm = dht.readHumidity();
   if (nhietDo > nhietDo_dat + nhietDo_delta_P) on(lamLanh);
   if (nhietDo <= nhietDo_dat) off(lamLanh);
 

@@ -1,0 +1,1 @@
+điều khiển mạch đóng ngắt không tiếp điểm, giao tiếp với mega màn hình.

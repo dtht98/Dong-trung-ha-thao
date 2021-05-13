@@ -21,6 +21,7 @@
 #define taoSuong 6
 #define lamNong 11
 #define chieuSang 12
+#define chieuSang2 2
 #define coiBaoNuoc 13
 
 #define ADDR_FLAG 0
@@ -98,11 +99,14 @@ void setup() {
   pinMode(coiBaoNuoc, OUTPUT);
   pinMode(chieuSang, OUTPUT);
   pinMode(lamNong, OUTPUT);
+    pinMode(chieuSang2, OUTPUT);
 
   off(lamLanh);
   off(taoSuong);
 
   readFromEEPROM();
+
+  dht.begin();
 }
 
 void loop() {
@@ -117,8 +121,10 @@ void loop() {
 void anhSang() {
   if (sang) {
     on(chieuSang);
+    on(chieuSang2);
   } else {
     off(chieuSang);
+    off(chieuSang2);
   }
 }
 

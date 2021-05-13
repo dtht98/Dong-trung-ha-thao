@@ -182,8 +182,8 @@ class {
     String param;
 
     int read() {
-      while (Serial3.available() > 0) {
-        char b = Serial3.read();
+      while (Serial2.available() > 0) {
+        char b = Serial2.read();
         if (b == '\n') return -1;
         if (b == ';') {
           String temp = buffer;
@@ -223,8 +223,8 @@ class {
     String param;
 
     int read() {
-      while (Serial2.available() > 0) {
-        char b = Serial2.read();
+      while (Serial1.available() > 0) {
+        char b = Serial1.read();
         if (b == '\n') return -1;
         if (b == ';') {
           String temp = buffer;
@@ -1119,8 +1119,8 @@ Wifi wifi;
 String deviceStatus = "0000000";
 
 bool getData(void *) {
-  Serial2.print("get;");
-  Serial2.print("getStatus;");
+  Serial1.print("get;");
+  Serial1.print("getStatus;");
   return true; // repeat? true
 }
 
@@ -1183,7 +1183,7 @@ bool hasHeader(uint8_t scr) {
 }
 
 void drawTime(bool drawDay) {
-  tft.fillRect(9, 5, 64, 28, topBarBackground);
+  tft.fillRect(9, 5, 200, 28, topBarBackground);
   text(clk.getTimeString(), 10, 8, 2); // top bar time
   if (screen.current() == SCREEN__MAIN) {
     tft.fillRect(320, 53, 150, 50, Backcolor);
@@ -1322,10 +1322,10 @@ void screenMain() {     //draw main screen
         light = !light;
         tft.fillRect(200 - 3, 115 - 40, 70, 50, Backcolor);
         text(String(light ? "B\u0090t" : "T\u0087t"), 200, 115, 1, WHITE, &test);
-        Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
-        Serial2.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
+        Serial2.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+        Serial1.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
         Serial.print(String("to mini: setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
-        //Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+        //Serial2.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
       }
       yt += 50;
       if (tx >= xt && ty >= yt && tx < xt + 240 && ty < yt + 92) {
@@ -1356,8 +1356,6 @@ void screenSetup() {     //setup screen
     header.onclicked();
     menuSetup.list[1].onclicked([] {
       if (!wifi.stt) {
-        Serial3.print("scan;");
-        Serial.println("sent scan cmd");
         wifi.receivedWifiList = false;
         wifi.printedWifiList = false;
         screen.add(SCREEN__WIFI_LIST);
@@ -1452,21 +1450,27 @@ void screenHTInputs() {       //humidity and temperature input
       humiditySP = h;
       tft.fillRect(30, 230, 80, 100, Backcolor);
       text("\u001e\u0083 l\u00b8u!", 30, 260, 1, GREEN, &ss10pt);
-      Serial2.print(String("setpoint.") + t + "," + String(h) + String(',') + String(light ? "1" : "0") + ";");
+      Serial1.print(String("setpoint.") + t + "," + String(h) + String(',') + String(light ? "1" : "0") + ";");
       Serial.println(String("setpoint.") + t + "," + String(h) + String(',') + String(light ? "1" : "0") + ";");
     });
+
     if (screen.hasJustChanged()) break;
   }
 }
 
 void screenWifiList() {
+  wifi.printedWifiList = false;  // chua in ra
+  if (!wifi.receivedWifiList) { // neu chua nhan duoc wifi thi gui lenh
+    Serial2.print("scan;");
+    Serial.println("sent scan cmd");
+  }
   Menu menuWifi(1);
 
   clr();
   header.lb = "Wifi";
   header.draw();
 
-  if (wifi.receivedWifiList) {
+  if (wifi.receivedWifiList) {  // neu da nhan dc wifi thi in ra
     menuWifi = Menu(wifi.n);
     for (int i = 0; i < wifi.n; i++) {
       menuWifi.list[i].lb = String(i + 1) + ". " + wifi.ssid[i] + "  " + wifi.rssi[i];
@@ -1474,17 +1478,17 @@ void screenWifiList() {
       menuWifi.list[i].defaultFont = true;
     }
     menuWifi.draw();
-    wifi.printedWifiList = true;
+    wifi.printedWifiList = true;  // da in ra
   }
 
   while (true) {
     checkTouch();
     header.onclicked();
 
-    if (!wifi.receivedWifiList) {
+    if (!wifi.receivedWifiList) {   // neu chua nhan dc thi dang quet
       msg.draw("Scanning...", 200, 200);
     } else {
-      if (!wifi.printedWifiList) break;
+      if (!wifi.printedWifiList) break;  // neu da nhan dc thi: neu chua in thi break, da in thi thoi
     }
 
     for (int i = 0; i < wifi.n; i++) {
@@ -1516,7 +1520,7 @@ void screenWifiPassword() {
     if (key != "") {
       if (key == "ok") {
         wifi.password = pwInput.value;
-        Serial3.print("connect." + wifi.name + "::" + wifi.password + ";");
+        Serial2.print("connect." + wifi.name + "::" + wifi.password + ";");
         screen.pop(); screen.pop();
         screen.add(SCREEN__WIFI_STATUS);
         break;
@@ -1567,7 +1571,7 @@ void screenWifiStatus() {
     }
 
     disconnect.onclicked([] {
-      Serial3.print("disconnect;");
+      Serial2.print("disconnect;");
       screen.pop();
     });
 
@@ -1631,7 +1635,7 @@ void screenDeviceStatus() {
     header.onclicked();
     menuEnvir.list[0].onclicked([] {
       light = !light;
-      Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+      Serial2.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
       Serial.println(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
     });
     if (prev_light != light) {
@@ -1676,9 +1680,9 @@ class TimerRTC {
             }
           }
           light = sw;
-          //Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+          //Serial2.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
           Serial.println(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
-          Serial2.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
+          Serial1.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
 
           flag = false;
         }
@@ -1747,8 +1751,8 @@ void screenLightSetup() {
 
     menuLight.list[0].onclicked([] {
       light = !light;
-      Serial2.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
-      //Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
+      Serial1.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
+      //Serial2.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
       //Serial.println(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + (light ? "1" : "0") + ';');
     });
     if (prev_light != light) {
@@ -1931,9 +1935,9 @@ void setup(void) {
   pinMode(13, INPUT);
   pinMode(53, OUTPUT);
   Serial.begin(9600);
-  Serial3.begin(9600);
+  Serial1.begin(9600);
   Serial2.begin(9600);
-  Serial3.print("flush;");
+  Serial2.print("flush;");
 
   uint16_t identifier = tft.readID();
   tft.begin(identifier);
@@ -2022,6 +2026,7 @@ void checkTouch() {
   //pinMode(YM, OUTPUT);
 
   touched = (p.z > MINPRESSURE);
+
   if (touched) {
     ty = map(p.x, TS_MINX, TS_MAXX, tft.height(), 0);
     tx = map(p.y, TS_MINY, TS_MAXY, tft.width(), 0);
@@ -2122,7 +2127,7 @@ void serial() {
         int str = s.toInt();
         lastPing = millis();
         if (!wifi.stt) {
-          Serial3.print("get.wifi;");
+          Serial2.print("get.wifi;");
           Serial.print("get.wifi;");
         } else {
           wifi.setStrength(str);
@@ -2174,7 +2179,7 @@ void serial() {
           }
         }
 
-        Serial2.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
+        Serial1.print(String("setpoint.") + temperatureSP + "," + String(humiditySP) + String(',') + String(light ? "1" : "0") + ";");
         Serial.println(String("setpoint.") + pt + ":" + svalue + ";");
       }
       break;
@@ -2226,8 +2231,8 @@ void serial() {
         }
 
 
-        Serial3.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + "nope" + ';');
-        Serial3.print(String("setpointReverse.") + String(temperatureSP) + String(',') + String(humiditySP) + ';');
+        Serial2.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + "nope" + ';');
+        Serial2.print(String("setpointReverse.") + String(temperatureSP) + String(',') + String(humiditySP) + ';');
         //Serial.print(String("info.") + String(temperature) + String(',') + String(humidity)  + String(',')  + "nope" + ';');
       }
       break;
@@ -2240,7 +2245,7 @@ void serial() {
           prev_outOfWater = true;
         }
 
-        Serial3.print(String("water.") + s + String(";"));
+        Serial2.print(String("water.") + s + String(";"));
 
       }
       break;

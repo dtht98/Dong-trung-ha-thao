@@ -15,6 +15,8 @@ String weekDays[7] = {"0", "1", "2", "3", "4", "5", "6"};
 //Month names
 String months[12] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
 
+void scan();
+
 WidgetLED w(V6);
 //char auth[] = "qJGUs1-T3mqFFpvshJwGSXHvXdGrRTQ5";
 //char auth[] = "vg7WD2YadZ8PkaV3wBAYHFVlwdKzRchk";
@@ -240,7 +242,7 @@ void loop() {
         if (ls != "nope") light = ls == "0" ? false : true;
         Blynk.virtualWrite(V0, temperature);
         Blynk.virtualWrite(V1, humidity);
-        
+
         Blynk.virtualWrite(V5, light);
         Serial.print("da nhan;");
       }
@@ -271,43 +273,41 @@ void loop() {
           }
         }
       }
+
       break;
-      case 6:  //setpoint reverse
+    case 6:  //setpoint reverse
       {
         String s = cmd.param;
         int sp = s.indexOf(",");
         Blynk.virtualWrite(V3, s.substring(0, sp).toFloat());
-        Blynk.virtualWrite(V4, s.substring(sp+1, s.length()).toFloat());
-        digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+        Blynk.virtualWrite(V4, s.substring(sp + 1, s.length()).toFloat());
+        break;
       }
-      break;
   }
 }
-
-
-
-//  list.<n>,<ssid1>::<strength1>\\<ssid2>....;
-void scan() {
-  // Set WiFi to station mode and disconnect from an AP if it was previously connected
-  //  WiFi.mode(WIFI_STA);
-  //  WiFi.disconnect();
-  //  delay(100);
-  // WiFi.scanNetworks will return the number of networks found
-  int n = WiFi.scanNetworks();
-  wf.sort(n);
-  Serial.print("list.");
-  for (int i = 0; i < wf.n; i++) {
-    // Print SSID and RSSI for each network found
-    if (i > 0) Serial.print("\\\\");  //name
-    Serial.print(WiFi.SSID(wf.order[i]));  //name
-    Serial.print("::");
-    Serial.print(WiFi.RSSI(wf.order[i]));  //strength in dBm
+  //  list.<n>,<ssid1>::<strength1>\\<ssid2>....;
+  void scan() {
+    // Set WiFi to station mode and disconnect from an AP if it was previously connected
+    //  WiFi.mode(WIFI_STA);
+    //  WiFi.disconnect();
+    //  delay(100);
+    // WiFi.scanNetworks will return the number of networks found
+    digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
+    int n = WiFi.scanNetworks();
+    wf.sort(n);
+    Serial.print("list.");
+    for (int i = 0; i < wf.n; i++) {
+      // Print SSID and RSSI for each network found
+      if (i > 0) Serial.print("\\\\");  //name
+      Serial.print(WiFi.SSID(wf.order[i]));  //name
+      Serial.print("::");
+      Serial.print(WiFi.RSSI(wf.order[i]));  //strength in dBm
+    }
+    Serial.print(';');  //name
   }
-  Serial.print(';');  //name
-}
 
-/*void inso(byte so){
-  if(so < 10)
-   Serial.print('0');
-  Serial.print(so, DEC);
-  }*/
+  /*void inso(byte so){
+    if(so < 10)
+     Serial.print('0');
+    Serial.print(so, DEC);
+    }*/

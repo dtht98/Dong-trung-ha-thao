@@ -1,1 +1,1 @@
-Đây là phiên bản đầu tiên
+Hiển thị tft touched

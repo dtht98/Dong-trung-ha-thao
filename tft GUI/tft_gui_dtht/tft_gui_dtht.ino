@@ -8,16 +8,20 @@
 #include <C:\font\FontConvert\ss13pt.h>
 #include <C:\font\FontConvert\ss16pt.h>
 #include <C:\font\FontConvert\ss20pt.h>
-#include <avr/pgmspace.h>
+#include <avr\pgmspace.h>
 #include <TouchScreen.h>
 #include <arduino-timer.h>
-#include "img.h"
 
 #include <Adafruit_TFTLCD.h> // Hardware-specific library
 #include <SD.h>
 #include <SPI.h>
 
 #include <EEPROM.h>
+
+#include "text.h"
+#include "gui_elements.h"
+#include "gradient.h"
+
 #define ADDR_TIMER 100
 
 #define upto(n) for (int i = 0; i < n; i++)
@@ -27,7 +31,7 @@
 #define LCD_CD A2 // Command/Data goes to Analog 2
 #define LCD_WR A1 // LCD Write goes to Analog 1
 #define LCD_RD A0 // LCD Read goes to Analog 0
-#define PIN_SD_CS 10 // Adafruit SD shields and modules: pin 10 
+#define PIN_SD_CS 10 // Adafruit SD shields and modules: pin 10
 //
 #define LCD_RESET A4 // Can alternately just connect to Arduino's reset pin
 #define LCD_CS A3   // Chip Select goes to Analog 3
@@ -47,23 +51,7 @@
 #define TS_MINY 92
 #define TS_MAXY 951
 
-// Assign human-readable names to some common 16-bit color values:
-#define BLACK   0x0000
-#define BLUE    0x001F
-#define RED     0xF800
-#define GREEN   0x07E0
-#define CYAN    0x07FF
-#define MAGENTA 0xF81F
-#define YELLOW  0xFFE0
-#define WHITE   0xFFFF
-#define Transparent GREEN
-#define Backcolor 0x967
-#define GRAY 0x630c
 
-#define MAX 4   //gradient max stop point
-
-#define MAX_BMP         10                      // bmp file num
-#define FILENAME_LEN    20                      // max file name length
 
 #define MINPRESSURE 10
 #define MAXPRESSURE 1000
@@ -254,250 +242,9 @@ class {
 } cmd2;
 
 //------------------------------------------------------For showing bitmap image and logging (work with SD card)------------------------------------------------------
-File file, log_file;
-
-uint16_t read16(File f)
-{
-  uint16_t d;
-  uint8_t b;
-  b = f.read();
-  d = f.read();
-  d <<= 8;
-  d |= b;
-  return d;
-}
-
-uint32_t read32(File f)
-{
-  uint32_t d;
-  uint16_t b;
-
-  b = read16(f);
-  d = read16(f);
-  d <<= 16;
-  d |= b;
-  return d;
-}
-
-class Image {
-  public:
-    String fileName;
-    uint16_t w, h, bufflen;
-    boolean down;
-    uint8_t bitDepth, bmpOffset;
-    int x, y;
-
-    Image(String fname, uint16_t buffl = 0) {
-      bufflen = buffl;
-      fileName = fname;
-    }
-    void init() {
-      file = SD.open(fileName);
-      if (!file) {
-        Serial.println("Cannot find " + fileName);
-      } else {
-        //--- read header--
-        read16(file); //magic byte
-        read32(file);// read file size
-        read32(file);// read and ignore creator bytes
-        bmpOffset = read32(file); //where to start to read color data
-        // read DIB header
-        read32(file);          //img size
-        w = read32(file);             //get w, h
-        h = read32(file);
-        read16(file);
-        bitDepth = read16(file);//bit depth
-      }
-      file.close();
-    }
-
-    void draw(int xx, int yy, bool downn = false) {
-      down = downn;
-      x = xx; y = yy;
-      file = SD.open(fileName);
-      if (!file) {
-        Serial.println("Cannot find at the second time" + fileName);
-      } else {
-        if (bufflen == 0) bufflen = w;
-        int bufflenB = 2 * bufflen;
-
-        uint8_t sdbuffer[200];   // 50 px  max
-        if (!down) {
-          file.seek(bmpOffset);
-          for (int i = h - 1; i >= 0; i--) { //reversed
-            for (int j = 0; j + bufflenB <= 2 * w; j += bufflenB) {
-              file.read(sdbuffer, bufflenB);
-              uint8_t offset_x = j >> 1; // j/2   ^^
-              //uint16_t cl;
-              for (int k = 0; k < bufflen; k++) {
-                //cl = (sdbuffer[(k << 1) + 1 ] << 8) | sdbuffer[k << 1];
-                tft.drawPixel(x + k + offset_x, y + i, (sdbuffer[(k << 1) + 1 ] << 8) | sdbuffer[k << 1]);
-              }
-            }
-          }
-        } else {
-          uint32_t endpoint = bmpOffset + 2 * w * h;
-          for (int i = 0; i < h; i++) {
-            for (int j = 0; j + bufflenB <= 2 * w; j += bufflenB) {
-              file.seek(endpoint - bufflenB * (i + 1));
-              file.read(sdbuffer, bufflenB);
-              uint8_t offset_x = j >> 1; // j/2   ^^
-              //uint16_t cl;
-              for (int k = 0; k < bufflen; k++) {
-                //cl = (sdbuffer[(k << 1) + 1 ] << 8) | sdbuffer[k << 1];
-                tft.drawPixel(x + k + offset_x, y + i, (sdbuffer[(k << 1) + 1 ] << 8) | sdbuffer[k << 1]);
-              }
-            }
-          }
-        }
-        file.close();
-      }
-    }
-
-    bool pressed = false, clicked = false, released = false, prev;
-    unsigned long t = millis(), td = t;
-    void onclicked(void (*f)()) {
-      prev = pressed;
-      pressed = touched && (tx >= x && tx < x + w && ty >= y && ty < y + h);
-      if (!prev && pressed) { //pressed
-        td = millis();
-      }
-      if (prev && !pressed) { //released
-        if (millis() - t > 500 && millis() - td > 20) {
-          (*f)();
-        }
-        t = millis();
-      }
-    }
-};
-
-class ImageFromSRAM {
-  public:
-    uint16_t* arr;
-    uint16_t w, h;
-
-    ImageFromSRAM(uint16_t* dt, uint16_t ww, uint16_t hh) {
-      arr = dt;
-      w = ww, h = hh;
-    }
-    void draw(int x, int y) {
-      uint32_t i = 0;
-      for (int row = h - 1; row >= 0; row--) {
-        for (int c = 0; c < w; c++) {
-          tft.drawPixel(x + c, y + row, pgm_read_word_near(arr + i));
-          i++;
-        }
-      }
-    }
-};
-
-//class Logger {
-//  public:
-//    String fileName = "log.txt";
-//
-//    void init() {
-//      SD.remove(fileName);
-//      log_file = SD.open(fileName, FILE_WRITE);
-//      if (!log_file) {
-//        Serial.print("error opening log file");
-//        return;
-//      } else {
-//        log_file.println("\u001fi\u009bn");     //          //  194
-//      }
-//      log_file.close();
-//    }
-//    void read() {
-//      log_file = SD.open(fileName);
-//      if (!log_file) {
-//        Serial.print("error reading log file");
-//        return;
-//      } else {
-//        log_file.seek(0);
-//        Serial.println((uint8_t)log_file.read());
-//        Serial.println((uint8_t)log_file.read());
-//        Serial.println((uint8_t)log_file.read());
-//        Serial.println((uint8_t)log_file.read());
-//        Serial.println((uint8_t)log_file.read());
-//        Serial.println((uint8_t)log_file.read());
-//        Serial.println((uint8_t)log_file.read());
-//      }
-//      log_file.close();
-//    }
-//};
-//Logger logger;
 
 //---------------------------------------------------------------Graphics: Gradient-----------------------------------------------------
-typedef struct {
-  uint8_t r, g, b;
-} Color;
 
-class Grad
-{
-  public:
-    int p[MAX];
-    int n;
-    Color color[MAX]; //Maximum 2, can be changed, at least 2
-};
-
-class GradRectH: public Grad {
-  public:
-    int x, len;
-    void draw() {
-      for (uint8_t i = 0; i < n - 1; i++) {
-        for (int row = p[i]; row < p[i + 1]; row++) {
-          uint8_t r, g, b;
-          r = map(row, p[i], p[i + 1], color[i].r, color[i + 1].r);
-          g = map(row, p[i], p[i + 1], color[i].g, color[i + 1].g);
-          b = map(row, p[i], p[i + 1], color[i].b, color[i + 1].b);
-          tft.drawFastHLine(x, row, len, tft.color565(r, g, b));
-        }
-      }
-    }
-};
-
-class GradRectV: public Grad {
-  public:
-    int y, len;
-    void draw() {
-      for (uint8_t i = 0; i < n - 1; i++) {
-        for (int column = p[i]; column < p[i + 1]; column++) {
-          uint8_t r, g, b;
-          r = map(column, p[i], p[i + 1], color[i].r, color[i + 1].r);
-          g = map(column, p[i], p[i + 1], color[i].g, color[i + 1].g);
-          b = map(column, p[i], p[i + 1], color[i].b, color[i + 1].b);
-          tft.drawFastVLine(column, y, len, tft.color565(r, g, b));
-        }
-      }
-    }
-};
-
-class GradCircle: public Grad {
-  public:
-    int x, y;
-    // p[] is an array of radius in this case
-    void draw() {
-      for (uint8_t i = 0; i < n - 1; i++) {
-        for (int radius = p[i]; radius < p[i + 1]; radius++) {
-          uint8_t r, g, b;
-          r = map(radius, p[i], p[i + 1], color[i].r, color[i + 1].r);
-          g = map(radius, p[i], p[i + 1], color[i].g, color[i + 1].g);
-          b = map(radius, p[i], p[i + 1], color[i].b, color[i + 1].b);
-          tft.drawCircle(x, y, radius, tft.color565(radius, g, b));
-        }
-      }
-    }
-};
-
-class GradLineH: public GradRectV {
-  public:
-    GradLineH(int xx, int yy, int lenn, int lw, Color c1, Color c2) {
-      y = yy;
-      p[0] = xx; p[1] = xx + lenn / 4; p[2] = xx + 3 * lenn / 4; p[3] = xx + lenn;
-      len = lw; n = 4;
-      color[0] = color[3] = c2;
-      color[1] = color[2] = c1;
-    }
-};
 //-----------------------------------------------------------Graphics Elements---------------------------------------------------------------
 class GroupBox {
   public:
